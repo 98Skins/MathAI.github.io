@@ -3,114 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Math AI - Community Learning</title>
+    <title>Math AI - 98Skins System</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <style>
         :root { --bg: #0a0a0c; --side: #171717; --chat: #131314; --acc: #4facfe; --txt: #e3e3e3; --admin: #ff9f43; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--txt); height: 100vh; display: flex; overflow: hidden; }
 
+        /* BOCZNY PANEL */
         .sidebar { width: 280px; background: var(--side); display: flex; flex-direction: column; padding: 15px; border-right: 1px solid #333; transition: 0.3s; z-index: 100; }
         @media (max-width: 768px) { .sidebar { position: absolute; left: 0; transform: translateX(-100%); bottom:0; top:0; } .sidebar.active { transform: translateX(0); } }
         
-        .nav-btn { background: #2b2b2b; border: 1px solid #444; color: white; padding: 12px; border-radius: 12px; cursor: pointer; margin-bottom: 10px; width: 100%; font-weight: bold; font-size: 0.9rem; }
-        .admin-btn { border-color: var(--admin); color: var(--admin); margin-top: auto; opacity: 0.3; }
-        .admin-btn:hover { opacity: 1; }
+        .nav-btn { background: #2b2b2b; border: 1px solid #444; color: white; padding: 12px; border-radius: 12px; cursor: pointer; margin-bottom: 10px; width: 100%; font-weight: bold; }
+        .admin-btn { border-color: var(--admin); color: var(--admin); margin-top: auto; opacity: 0.5; }
 
-        .main { flex: 1; display: flex; flex-direction: column; background: var(--chat); }
-        .header { padding: 15px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; }
+        /* CZAT */
+        .main { flex: 1; display: flex; flex-direction: column; background: var(--chat); position: relative; }
+        .header { padding: 15px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; background: var(--chat); }
         #chat-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         
-        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; animation: slide 0.2s ease; }
-        .ai { align-self: flex-start; background: #232324; border-bottom-left-radius: 2px; }
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; animation: fadeIn 0.3s ease; }
+        .ai { align-self: flex-start; background: #232324; border-bottom-left-radius: 2px; border: 1px solid #333; }
         .user { align-self: flex-end; background: var(--acc); color: #000; border-bottom-right-radius: 2px; font-weight: 500; }
 
+        /* INPUT */
         .input-area { padding: 15px; width: 100%; max-width: 800px; margin: 0 auto; }
         .input-box { background: #1e1f20; border-radius: 30px; padding: 5px 15px; display: flex; align-items: center; gap: 10px; border: 1px solid #444; }
         input[type="text"] { flex: 1; background: none; border: none; color: white; padding: 12px; outline: none; font-size: 16px; }
 
-        #admin-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1c1c1e; padding: 25px; border-radius: 25px; border: 2px solid var(--admin); z-index: 1000; width: 90%; max-width: 400px; }
+        /* MODAL ADMINA */
+        #admin-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1c1c1e; padding: 25px; border-radius: 25px; border: 2px solid var(--admin); z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
         .admin-field { width: 100%; padding: 12px; margin: 10px 0; background: #2c2c2e; border: 1px solid #444; color: white; border-radius: 10px; }
-        @keyframes slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
-    <div style="font-weight: bold; margin-bottom: 20px; color: var(--acc)">HISTORIA SESJI</div>
-    <div id="historyList" style="flex:1; overflow-y:auto"></div>
-    <button class="nav-btn admin-btn" onclick="openAdmin()">⚙️ PANEL UCZENIA</button>
+    <div style="font-weight: bold; margin-bottom: 20px; color: var(--acc); text-align: center;">98Skins AI System</div>
+    <button class="nav-btn" onclick="location.reload()">🔄 Nowa Sesja</button>
+    <div id="historyList" style="flex:1"></div>
+    <button class="nav-btn admin-btn" onclick="openAdmin()">⚙️ PANEL ADMINA</button>
 </div>
 
 <div class="main" onclick="closeSidebar()">
     <div class="header">
         <button onclick="event.stopPropagation(); toggleSidebar()" style="background:none; border:none; color:white; font-size:1.5rem">☰</button>
-        <b style="letter-spacing: 1px">MATH <span style="color:var(--acc)">AI</span></b>
-        <div id="cloud-status" style="font-size:0.6rem; color:#555">Połączono</div>
+        <b id="status-text" style="font-size: 0.75rem; color: #666;">Status: Gotowy (98Skins)</b>
+        <div style="width: 20px;"></div>
     </div>
     
     <div id="chat-content"></div>
 
     <div class="input-area">
         <div class="input-box">
-            <input type="text" id="userInput" placeholder="Napisz wiadomość..." autocomplete="off" onkeypress="if(event.key==='Enter') solve()">
+            <input type="text" id="userInput" placeholder="Napisz do MathAI..." autocomplete="off" onkeypress="if(event.key==='Enter') solve()">
             <button onclick="solve()" style="background:none; border:none; color:var(--acc); font-size:1.5rem">➤</button>
         </div>
-        <p style="font-size: 0.6rem; text-align: center; margin-top: 8px; color: #555;">Pisząc, ulepszasz algorytm AI. Dane są anonimowe.</p>
+        <p style="font-size: 0.55rem; text-align: center; margin-top: 8px; color: #444;">Wszystkie rozmowy są logowane anonimowo w folderze /info.</p>
     </div>
 </div>
 
 <div id="admin-modal">
-    <h3 style="color:var(--admin)">Uczenie AI (Admin)</h3>
+    <h3 style="color:var(--admin); margin-bottom: 10px;">Panel Uczenia AI</h3>
     <input type="password" id="adminPass" class="admin-field" placeholder="Hasło...">
     <div id="admin-tools" style="display:none">
-        <input type="text" id="trig" class="admin-field" placeholder="Gdy ktoś powie...">
-        <input type="text" id="resp" class="admin-field" placeholder="Odpowiedz...">
-        <button class="nav-btn" onclick="saveRule()" style="background:var(--admin); color:black">Zapisz regułę</button>
+        <input type="text" id="trig" class="admin-field" placeholder="Trigger (np. sluchaj)">
+        <input type="text" id="resp" class="admin-field" placeholder="Odpowiedź AI...">
+        <button class="nav-btn" onclick="saveRule()" style="background:var(--admin); color:black">DODAJ REGULĘ</button>
     </div>
-    <button class="nav-btn" onclick="closeAdmin()">Zamknij</button>
+    <button class="nav-btn" onclick="closeAdmin()" style="margin-top:10px">Zamknij</button>
 </div>
 
 <script>
-    /* --- KONFIGURACJA GITHUB (TWOJE DANE) --- */
+    /* --- TWOJE KONKRETNE DANE --- */
     const GH_TOKEN = "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";
-    const GH_REPO = "TWOJ_NICK/NAZWA_REPO"; // TU WPISZ SWOJE DANE!
-    const USER_ID = "User_" + Math.floor(Math.random() * 1000);
-    /* ---------------------------------------- */
+    const GH_REPO = "98Skins/MathAI.github.io"; // TWOJA NAZWA I TWOJE REPO!
+    const GH_FILE = "info/chat_log.json";
+    const USER_ID = "Guest_" + Math.random().toString(36).substr(2, 4).toUpperCase();
+    /* ---------------------------- */
 
     let customRules = JSON.parse(localStorage.getItem('ai_rules')) || {};
 
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); }
     function openAdmin() { document.getElementById('admin-modal').style.display = 'block'; }
-    function closeAdmin() { document.getElementById('admin-modal').style.display = 'none'; }
+    function closeAdmin() { document.getElementById('admin-modal').style.display = 'none'; document.getElementById('adminPass').value = ''; }
 
     document.getElementById('adminPass').addEventListener('input', function(e) {
         if(e.target.value === "213005789Qu#@") document.getElementById('admin-tools').style.display = 'block';
     });
 
     async function sendToCloud(u, a) {
-        const url = `https://api.github.com/repos/${GH_REPO}/contents/info/chat_log.json`;
+        const url = `https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`;
+        const status = document.getElementById('status-text');
+        status.innerText = "Status: Zapisywanie...";
+
         try {
-            let sha = ""; let logs = [];
+            let sha = "";
+            let logs = [];
+
+            // Pobierz aktualny stan pliku
             const res = await fetch(url, { headers: { "Authorization": `token ${GH_TOKEN}` } });
             if (res.ok) {
                 const d = await res.json();
                 sha = d.sha;
                 logs = JSON.parse(decodeURIComponent(escape(atob(d.content))));
             }
-            logs.push({ id: USER_ID, time: new Date().toLocaleString(), user: u, ai: a });
-            await fetch(url, {
+
+            // Dopisz nową wiadomość
+            logs.push({ id: USER_ID, time: new Date().toLocaleString(), msg: u, res: a });
+
+            // Wyślij z powrotem
+            const putRes = await fetch(url, {
                 method: "PUT",
-                headers: { "Authorization": `token ${GH_TOKEN}` },
+                headers: { "Authorization": `token ${GH_TOKEN}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    message: `Update from ${USER_ID}`,
+                    message: `Log od ${USER_ID}`,
                     content: btoa(unescape(encodeURIComponent(JSON.stringify(logs, null, 2)))),
                     sha: sha
                 })
             });
-            document.getElementById('cloud-status').innerText = "Zsynchronizowano";
-        } catch(e) { console.error(e); }
+
+            if(putRes.ok) {
+                status.innerText = "Status: Zapisano w chmurze";
+                status.style.color = "#4facfe";
+            }
+        } catch(e) {
+            status.innerText = "Status: Błąd połączenia";
+            console.error(e);
+        }
     }
 
     function addMsg(txt, type) {
@@ -125,38 +148,49 @@
         const inp = document.getElementById('userInput');
         const val = inp.value.trim();
         if(!val) return;
+
         addMsg(val, 'user');
         inp.value = '';
-        document.getElementById('cloud-status').innerText = "Wysyłanie...";
 
         setTimeout(() => {
             let response = "";
             let q = val.toLowerCase();
+
+            // 1. Sprawdź reguły admina
             for(let k in customRules) { if(q.includes(k)) { response = customRules[k]; break; } }
 
+            // 2. Obsługa powitań
+            const powitania = ["hej", "siema", "cześć", "elo"];
+            if(!response && powitania.some(p => q.includes(p))) {
+                response = "Siema! Tu MathAI od 98Skins. Co tam u Ciebie?";
+            }
+
+            // 3. Logika matematyczna
             if(!response) {
                 let clean = q.replace(/razy/g, "*").replace(/plus/g, "+").replace(/[a-ząćęłńóśźż?]/g, "").replace(/\s/g, "");
-                try { response = clean ? `Wynik: <b>${math.evaluate(clean)}</b>` : "Cześć! Uczę się na podstawie tego, co piszesz."; }
-                catch(e) { response = "Zapisz to prościej, np. 2+2."; }
+                try {
+                    response = clean ? `Wynik: <b>${math.evaluate(clean)}</b>` : "Dzięki! Każda Twoja wiadomość uczy mój system.";
+                } catch(e) { response = "Spróbuj zapisać to działanie prościej!"; }
             }
+
             addMsg(response, 'ai');
-            sendToCloud(val, response);
-        }, 600);
+            sendToCloud(val, response); // Automatyczna synchronizacja
+        }, 500);
     }
 
     function saveRule() {
-        const t = document.getElementById('trig').value.toLowerCase();
-        const r = document.getElementById('resp').value;
+        const t = document.getElementById('trig').value.toLowerCase().trim();
+        const r = document.getElementById('resp').value.trim();
         if(t && r) {
             customRules[t] = r;
             localStorage.setItem('ai_rules', JSON.stringify(customRules));
-            sendToCloud("ADMIN_NEW_RULE", t + " -> " + r);
-            alert("Dodano regułę!");
+            sendToCloud("ADMIN_LEARN", `New: ${t} -> ${r}`);
+            alert("Dodano nową regułę do pamięci lokalnej i chmury!");
             closeAdmin();
         }
     }
 
-    window.onload = () => addMsg("Witaj w systemie nauki MATH AI. Twoje pytania pomagają mi stać się mądrzejszym!", "ai");
+    window.onload = () => addMsg("Witaj w systemie 98Skins AI. Twoje rozmowy pomagają mi się uczyć!", "ai");
 </script>
 </body>
 </html>
