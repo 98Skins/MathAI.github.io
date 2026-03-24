@@ -3,315 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Math AI Ultra Pro - Admin Edition</title>
+    <title>Math AI - Community Learning</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <style>
-        :root {
-            --bg: #0a0a0c;
-            --side: #171717;
-            --chat: #131314;
-            --acc: #4facfe;
-            --txt: #e3e3e3;
-            --admin-gold: #ff9f43;
-        }
-
+        :root { --bg: #0a0a0c; --side: #171717; --chat: #131314; --acc: #4facfe; --txt: #e3e3e3; --admin: #ff9f43; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--txt); height: 100vh; display: flex; overflow: hidden; }
+
+        .sidebar { width: 280px; background: var(--side); display: flex; flex-direction: column; padding: 15px; border-right: 1px solid #333; transition: 0.3s; z-index: 100; }
+        @media (max-width: 768px) { .sidebar { position: absolute; left: 0; transform: translateX(-100%); bottom:0; top:0; } .sidebar.active { transform: translateX(0); } }
         
-        body { 
-            font-family: 'Inter', -apple-system, sans-serif; 
-            background: var(--bg); 
-            color: var(--txt); 
-            height: 100vh; 
-            display: flex; 
-            overflow: hidden; 
-        }
+        .nav-btn { background: #2b2b2b; border: 1px solid #444; color: white; padding: 12px; border-radius: 12px; cursor: pointer; margin-bottom: 10px; width: 100%; font-weight: bold; font-size: 0.9rem; }
+        .admin-btn { border-color: var(--admin); color: var(--admin); margin-top: auto; opacity: 0.3; }
+        .admin-btn:hover { opacity: 1; }
 
-        /* SIDEBAR */
-        .sidebar { 
-            width: 280px; 
-            background: var(--side); 
-            display: flex; 
-            flex-direction: column; 
-            padding: 15px; 
-            border-right: 1px solid #333; 
-            transition: transform 0.3s ease; 
-            z-index: 100; 
-        }
-
-        @media (max-width: 768px) {
-            .sidebar { position: absolute; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }
-            .sidebar.active { transform: translateX(0); }
-        }
-
-        .nav-btn { 
-            background: #2b2b2b; 
-            border: 1px solid #444; 
-            color: white; 
-            padding: 12px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            margin-bottom: 10px; 
-            font-weight: bold; 
-            width: 100%; 
-            transition: 0.2s;
-        }
-        .nav-btn:hover { background: #3d3d3d; }
-        .admin-trigger-btn { border-color: var(--admin-gold); color: var(--admin-gold); }
-
-        .history-list { flex: 1; overflow-y: auto; margin-top: 10px; }
-        .history-item { 
-            padding: 12px; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-size: 0.85rem; 
-            color: #aaa; 
-            margin-bottom: 5px; 
-            background: rgba(255,255,255,0.02);
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-        }
-
-        /* MAIN CHAT */
-        .main-chat { flex: 1; display: flex; flex-direction: column; background: var(--chat); width: 100%; height: 100%; }
-        
-        .header { 
-            padding: 15px; 
-            border-bottom: 1px solid #333; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-        }
-
-        .menu-icon { font-size: 1.5rem; cursor: pointer; background: none; border: none; color: white; display: none; }
-        @media (max-width: 768px) { .menu-icon { display: block; } }
-
+        .main { flex: 1; display: flex; flex-direction: column; background: var(--chat); }
+        .header { padding: 15px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; }
         #chat-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-
-        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; position: relative; animation: fadeIn 0.3s ease; }
+        
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; animation: slide 0.2s ease; }
         .ai { align-self: flex-start; background: #232324; border-bottom-left-radius: 2px; }
         .user { align-self: flex-end; background: var(--acc); color: #000; border-bottom-right-radius: 2px; font-weight: 500; }
-        
-        .copy-tag { font-size: 0.7rem; color: var(--acc); cursor: pointer; margin-top: 5px; display: block; text-decoration: underline; }
 
-        /* INPUT AREA */
-        .input-area { padding: 15px; max-width: 800px; margin: 0 auto; width: 100%; }
-        .input-container { 
-            background: #1e1f20; 
-            border-radius: 30px; 
-            padding: 5px 15px; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            border: 1px solid #444; 
-        }
+        .input-area { padding: 15px; width: 100%; max-width: 800px; margin: 0 auto; }
+        .input-box { background: #1e1f20; border-radius: 30px; padding: 5px 15px; display: flex; align-items: center; gap: 10px; border: 1px solid #444; }
+        input[type="text"] { flex: 1; background: none; border: none; color: white; padding: 12px; outline: none; font-size: 16px; }
 
-        input[type="text"] { flex: 1; background: none; border: none; color: white; padding: 12px 5px; outline: none; font-size: 16px; }
-        .icon-btn { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; }
-
-        /* ADMIN MODAL */
-        #admin-modal {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #1c1c1e; border: 2px solid var(--admin-gold); padding: 25px; border-radius: 25px;
-            z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 0 30px rgba(0,0,0,0.8);
-        }
-        .admin-field { width: 100%; padding: 12px; margin: 10px 0; background: #2c2c2e; border: 1px solid #444; color: white; border-radius: 10px; outline: none; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
+        #admin-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1c1c1e; padding: 25px; border-radius: 25px; border: 2px solid var(--admin); z-index: 1000; width: 90%; max-width: 400px; }
+        .admin-field { width: 100%; padding: 12px; margin: 10px 0; background: #2c2c2e; border: 1px solid #444; color: white; border-radius: 10px; }
+        @keyframes slide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
-    <button class="nav-btn" onclick="startNewChat()">+ Nowy czat</button>
-    <button class="nav-btn admin-trigger-btn" onclick="openAdmin()">⚙️ UCZENIE (Admin)</button>
-    <div id="historyList" class="history-list"></div>
-    <button class="nav-btn" style="color: #ff4d4d; border-color: #633;" onclick="clearAll()">Wyczyść pamięć</button>
+    <div style="font-weight: bold; margin-bottom: 20px; color: var(--acc)">HISTORIA SESJI</div>
+    <div id="historyList" style="flex:1; overflow-y:auto"></div>
+    <button class="nav-btn admin-btn" onclick="openAdmin()">⚙️ PANEL UCZENIA</button>
 </div>
 
-<div class="main-chat" onclick="closeSidebar()">
+<div class="main" onclick="closeSidebar()">
     <div class="header">
-        <button class="menu-icon" onclick="event.stopPropagation(); toggleSidebar()">☰</button>
-        <div style="font-weight: 800; background: linear-gradient(to right, #4facfe, #00f2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MATH AI PRO</div>
-        <div style="font-size: 0.7rem; opacity: 0.4;">ADMIN READY</div>
+        <button onclick="event.stopPropagation(); toggleSidebar()" style="background:none; border:none; color:white; font-size:1.5rem">☰</button>
+        <b style="letter-spacing: 1px">MATH <span style="color:var(--acc)">AI</span></b>
+        <div id="cloud-status" style="font-size:0.6rem; color:#555">Połączono</div>
     </div>
-
+    
     <div id="chat-content"></div>
 
     <div class="input-area">
-        <div id="status" style="display:none; color: var(--acc); font-size: 0.75rem; margin-left: 15px; margin-bottom: 5px;">AI przetwarza...</div>
-        <div class="input-container">
-            <input type="file" id="galInput" accept="image/*" hidden>
-            <button class="icon-btn" onclick="document.getElementById('galInput').click()">+</button>
-            
-            <input type="text" id="userInput" placeholder="Zadaj pytanie lub zagadaj..." autocomplete="off" onkeypress="if(event.key==='Enter') solve()">
-            
-            <select id="mode" style="background:#2b2a2a; color:white; border:none; border-radius:10px; padding:4px; font-size:0.7rem">
-                <option value="fast">⚡</option>
-                <option value="smart">🧠</option>
-            </select>
-
-            <button class="icon-btn" style="color: var(--acc);" onclick="solve()">➤</button>
+        <div class="input-box">
+            <input type="text" id="userInput" placeholder="Napisz wiadomość..." autocomplete="off" onkeypress="if(event.key==='Enter') solve()">
+            <button onclick="solve()" style="background:none; border:none; color:var(--acc); font-size:1.5rem">➤</button>
         </div>
+        <p style="font-size: 0.6rem; text-align: center; margin-top: 8px; color: #555;">Pisząc, ulepszasz algorytm AI. Dane są anonimowe.</p>
     </div>
 </div>
 
 <div id="admin-modal">
-    <h2 style="color:var(--admin-gold); margin-bottom:15px">Panel Admina</h2>
+    <h3 style="color:var(--admin)">Uczenie AI (Admin)</h3>
     <input type="password" id="adminPass" class="admin-field" placeholder="Hasło...">
-    
-    <div id="learning-tools" style="display:none">
-        <p style="font-size:0.8rem; margin-bottom:5px">Kiedy ktoś powie (Trigger):</p>
-        <input type="text" id="trigIn" class="admin-field" placeholder="np. sluchaj">
-        <p style="font-size:0.8rem; margin-bottom:5px">Twoja odpowiedź:</p>
-        <input type="text" id="respIn" class="admin-field" placeholder="np. dobrze juz slucham">
-        <button class="nav-btn" onclick="saveNewRule()" style="background:var(--admin-gold); color:black">Ucz AI i wyślij do /info</button>
+    <div id="admin-tools" style="display:none">
+        <input type="text" id="trig" class="admin-field" placeholder="Gdy ktoś powie...">
+        <input type="text" id="resp" class="admin-field" placeholder="Odpowiedz...">
+        <button class="nav-btn" onclick="saveRule()" style="background:var(--admin); color:black">Zapisz regułę</button>
     </div>
-    
-    <button class="nav-btn" onclick="closeAdmin()" style="margin-top:10px">Zamknij</button>
+    <button class="nav-btn" onclick="closeAdmin()">Zamknij</button>
 </div>
 
 <script>
-    let chatHistory = JSON.parse(localStorage.getItem('ai_history')) || [];
-    let customRules = JSON.parse(localStorage.getItem('ai_rules')) || {};
-    let currentChat = [];
+    /* --- KONFIGURACJA GITHUB (TWOJE DANE) --- */
+    const GH_TOKEN = "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";
+    const GH_REPO = "TWOJ_NICK/NAZWA_REPO"; // TU WPISZ SWOJE DANE!
+    const USER_ID = "User_" + Math.floor(Math.random() * 1000);
+    /* ---------------------------------------- */
 
-    window.onload = () => { renderHistory(); startNewChat(); };
+    let customRules = JSON.parse(localStorage.getItem('ai_rules')) || {};
 
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); }
-
     function openAdmin() { document.getElementById('admin-modal').style.display = 'block'; }
-    function closeAdmin() { 
-        document.getElementById('admin-modal').style.display = 'none'; 
-        document.getElementById('learning-tools').style.display = 'none';
-        document.getElementById('adminPass').value = '';
-    }
+    function closeAdmin() { document.getElementById('admin-modal').style.display = 'none'; }
 
-    // Weryfikacja hasła admina
     document.getElementById('adminPass').addEventListener('input', function(e) {
-        if(e.target.value === "213005789Qu#@") {
-            document.getElementById('learning-tools').style.display = 'block';
-            this.style.borderColor = "var(--admin-gold)";
-        }
+        if(e.target.value === "213005789Qu#@") document.getElementById('admin-tools').style.display = 'block';
     });
 
-    function saveNewRule() {
-        const t = document.getElementById('trigIn').value.toLowerCase().trim();
-        const r = document.getElementById('respIn').value.trim();
-        if(t && r) {
-            customRules[t] = r;
-            localStorage.setItem('ai_rules', JSON.stringify(customRules));
-            console.log("LOG: Nowa wiedza zapisana do /info (GitHub Sync)", {trigger: t, response: r});
-            alert("Nauczono pomyślnie!");
-            document.getElementById('trigIn').value = '';
-            document.getElementById('respIn').value = '';
-        }
+    async function sendToCloud(u, a) {
+        const url = `https://api.github.com/repos/${GH_REPO}/contents/info/chat_log.json`;
+        try {
+            let sha = ""; let logs = [];
+            const res = await fetch(url, { headers: { "Authorization": `token ${GH_TOKEN}` } });
+            if (res.ok) {
+                const d = await res.json();
+                sha = d.sha;
+                logs = JSON.parse(decodeURIComponent(escape(atob(d.content))));
+            }
+            logs.push({ id: USER_ID, time: new Date().toLocaleString(), user: u, ai: a });
+            await fetch(url, {
+                method: "PUT",
+                headers: { "Authorization": `token ${GH_TOKEN}` },
+                body: JSON.stringify({
+                    message: `Update from ${USER_ID}`,
+                    content: btoa(unescape(encodeURIComponent(JSON.stringify(logs, null, 2)))),
+                    sha: sha
+                })
+            });
+            document.getElementById('cloud-status').innerText = "Zsynchronizowano";
+        } catch(e) { console.error(e); }
     }
 
-    function addMsg(txt, type, save = true) {
+    function addMsg(txt, type) {
         const d = document.createElement('div');
         d.className = `msg ${type}`;
         d.innerHTML = txt;
-        
-        if(type === 'ai' && (txt.includes('Wynik') || txt.includes('<b>'))) {
-            const copy = document.createElement('span');
-            copy.className = 'copy-tag';
-            copy.innerText = 'Kopiuj';
-            copy.onclick = () => {
-                navigator.clipboard.writeText(txt.replace(/<[^>]*>/g, ''));
-                copy.innerText = 'Skopiowano!';
-                setTimeout(() => copy.innerText = 'Kopiuj', 2000);
-            };
-            d.appendChild(copy);
-        }
-        
         document.getElementById('chat-content').appendChild(d);
         document.getElementById('chat-content').scrollTop = 99999;
-        if(save) currentChat.push({t: txt, type: type});
     }
 
     function solve() {
         const inp = document.getElementById('userInput');
         const val = inp.value.trim();
         if(!val) return;
-
         addMsg(val, 'user');
         inp.value = '';
-        
-        const mode = document.getElementById('mode').value;
-        document.getElementById('status').style.display = 'block';
+        document.getElementById('cloud-status').innerText = "Wysyłanie...";
 
         setTimeout(() => {
-            document.getElementById('status').style.display = 'none';
-            let query = val.toLowerCase();
-            
-            // 1. Sprawdzanie wyuczonych reguł Admina
-            for(let key in customRules) {
-                if(query.includes(key)) {
-                    addMsg(customRules[key], 'ai');
-                    return;
-                }
-            }
+            let response = "";
+            let q = val.toLowerCase();
+            for(let k in customRules) { if(q.includes(k)) { response = customRules[k]; break; } }
 
-            // 2. Obsługa powitań
-            const powitania = ["hej", "siema", "cześć", "czesc", "elo"];
-            if(powitania.some(p => query.includes(p))) {
-                addMsg("Siema! W czym mogę dziś pomóc? Możesz pisać słownie lub cyframi.", "ai");
-                return;
+            if(!response) {
+                let clean = q.replace(/razy/g, "*").replace(/plus/g, "+").replace(/[a-ząćęłńóśźż?]/g, "").replace(/\s/g, "");
+                try { response = clean ? `Wynik: <b>${math.evaluate(clean)}</b>` : "Cześć! Uczę się na podstawie tego, co piszesz."; }
+                catch(e) { response = "Zapisz to prościej, np. 2+2."; }
             }
-
-            // 3. Logika matematyczna + tolerancja spacji i słów
-            query = query.replace(/razy|pomnożyć/g, "*").replace(/podzielić|przez/g, "/").replace(/plus|dodać/g, "+").replace(/minus|odjąć/g, "-");
-            let clean = query.replace(/[a-ząćęłńóśźż?,]/g, "").replace(/\s+/g, "");
-
-            try {
-                if(clean) {
-                    const res = math.evaluate(clean);
-                    addMsg(`Wynik dla <b>${clean}</b> to: <b>${res}</b>`, "ai");
-                } else {
-                    addMsg("Mówisz do mnie? Jeśli chcesz coś policzyć, podaj liczby!", "ai");
-                }
-            } catch(e) {
-                addMsg("Nie ogarniam tego zapisu. Spróbuj np. '5 razy 5'.", "ai");
-            }
-        }, mode === 'smart' ? 1500 : 300);
+            addMsg(response, 'ai');
+            sendToCloud(val, response);
+        }, 600);
     }
 
-    function startNewChat() {
-        if(currentChat.length > 0) {
-            const title = currentChat.find(m => m.type === 'user')?.t.substring(0, 20) || "Rozmowa";
-            chatHistory.push({title, msgs: currentChat});
-            localStorage.setItem('ai_history', JSON.stringify(chatHistory));
-            renderHistory();
+    function saveRule() {
+        const t = document.getElementById('trig').value.toLowerCase();
+        const r = document.getElementById('resp').value;
+        if(t && r) {
+            customRules[t] = r;
+            localStorage.setItem('ai_rules', JSON.stringify(customRules));
+            sendToCloud("ADMIN_NEW_RULE", t + " -> " + r);
+            alert("Dodano regułę!");
+            closeAdmin();
         }
-        currentChat = [];
-        document.getElementById('chat-content').innerHTML = '';
-        addMsg("Siema! Jestem gotowy. Co dziś obliczamy?", "ai", false);
     }
 
-    function renderHistory() {
-        const list = document.getElementById('historyList');
-        list.innerHTML = '';
-        chatHistory.slice().reverse().forEach((h, i) => {
-            const item = document.createElement('div');
-            item.className = 'history-item';
-            item.innerText = h.title;
-            item.onclick = () => {
-                document.getElementById('chat-content').innerHTML = '';
-                h.msgs.forEach(m => addMsg(m.t, m.type, false));
-                closeSidebar();
-            };
-            list.appendChild(item);
-        });
-    }
-
-    function clearAll() { if(confirm("Usunąć wszystko?")) { localStorage.clear(); location.reload(); } }
-
-    document.getElementById('galInput').onchange = function() {
-        if(this.files[0]) addMsg("<i>[Otwarto Galerię]</i> Widzę obraz. Przepisz działanie, bym mógł je policzyć!", "ai");
-    };
+    window.onload = () => addMsg("Witaj w systemie nauki MATH AI. Twoje pytania pomagają mi stać się mądrzejszym!", "ai");
 </script>
-
 </body>
 </html>
