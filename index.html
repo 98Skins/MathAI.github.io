@@ -3,163 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI KODER PRO - Lokalny Mózg</title>
+    <title>AI KODER PRO - Mobile & PC</title>
     <style>
-        :root { --main: #e94560; --bg: #1a1a2e; --panel: #16213e; --text: #ffffff; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        :root { --accent: #00ffcc; --bg: #0a0b10; --card: #161b22; --text: #e6edf3; --user-msg: #238636; }
         
-        .app-container {
-            background: #fff; width: 100%; max-width: 1200px; height: 800px;
-            display: flex; border-radius: 15px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        
+        body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* HEADER */
+        .main-header { 
+            background: var(--card); padding: 15px; border-bottom: 1px solid #30363d; 
+            display: flex; justify-content: space-between; align-items: center; z-index: 100;
+        }
+        .status-light { color: var(--accent); font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        .status-light::before { content: ''; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 5px var(--accent); }
+
+        /* LAYOUT KONTEJNER */
+        .app-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+        /* LEWY PANEL - CZAT */
+        .chat-container { 
+            flex: 2; display: flex; flex-direction: column; background: var(--bg); 
+            transition: all 0.3s ease;
         }
 
-        /* CZAT */
-        .chat-section { flex: 2; display: flex; flex-direction: column; background: #f0f2f5; border-right: 2px solid #ddd; }
-        .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 12px 18px; border-radius: 18px; font-size: 14px; max-width: 80%; line-height: 1.4; }
-        .msg.ai { background: #e4e6eb; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .msg.user { background: var(--main); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .code-box { background: #282c34; color: #abb2bf; padding: 10px; border-radius: 5px; font-family: monospace; display: block; margin: 10px 0; overflow-x: auto; font-size: 12px; }
-
-        .input-area { padding: 20px; background: white; display: flex; gap: 10px; border-top: 1px solid #ddd; }
-        textarea { flex: 1; height: 50px; padding: 10px; border: 1px solid #ccc; border-radius: 10px; resize: none; }
-
-        /* PANEL ADMINA */
-        .admin-section { flex: 1; background: #f8f9fa; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .admin-content { display: none; }
-        .admin-content.active { display: block; }
+        .messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
         
-        h3 { color: var(--panel); margin-bottom: 10px; font-size: 16px; border-bottom: 2px solid var(--main); padding-bottom: 5px; }
-        input, .big-area { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px; font-size: 13px; }
-        .big-area { height: 150px; resize: vertical; }
+        .bubble { max-width: 85%; padding: 12px; border-radius: 12px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+        .bubble.ai { background: #21262d; align-self: flex-start; border: 1px solid #30363d; }
+        .bubble.user { background: var(--user-msg); align-self: flex-end; color: white; }
+        
+        .code-view { 
+            background: #000; color: #58a6ff; padding: 10px; border-radius: 6px; 
+            font-family: monospace; font-size: 12px; margin-top: 8px; overflow-x: auto; border: 1px solid #30363d; 
+        }
 
-        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn-main { background: var(--main); color: white; }
-        .btn-dark { background: var(--panel); color: white; }
-        .btn:hover { opacity: 0.8; transform: scale(0.98); }
+        .input-bar { padding: 15px; background: var(--card); border-top: 1px solid #30363d; display: flex; gap: 10px; }
+        #userIn { flex: 1; background: #0d1117; border: 1px solid #30363d; color: white; padding: 10px; border-radius: 8px; resize: none; height: 45px; }
 
-        .db-status { font-size: 11px; background: #eee; padding: 10px; border-radius: 5px; max-height: 200px; overflow-y: auto; }
+        /* PRAWY PANEL - NAUKA */
+        .brain-panel { 
+            flex: 1; background: var(--card); border-left: 1px solid #30363d; 
+            padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .learning-zone { background: #0d1117; padding: 15px; border-radius: 10px; border: 1px solid var(--accent); }
+        .big-input { width: 100%; height: 150px; background: #161b22; border: 1px solid #30363d; color: #e6edf3; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
+        
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-learn { background: var(--accent); color: #000; width: 100%; }
+        .btn-toggle { display: none; background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 5px 10px; }
+
+        /* MEDIA QUERIES - NA TELEFON */
+        @media (max-width: 850px) {
+            .btn-toggle { display: block; }
+            .brain-panel { 
+                position: absolute; right: 0; top: 0; bottom: 0; width: 85%; 
+                transform: translateX(100%); z-index: 50; box-shadow: -10px 0 20px rgba(0,0,0,0.5);
+            }
+            .brain-panel.active { transform: translateX(0); }
+            .chat-container { flex: 1; }
+        }
+
+        .tag { background: #21262d; padding: 4px 8px; border-radius: 6px; font-size: 11px; border: 1px solid #30363d; display: inline-block; margin: 2px; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="chat-section">
-        <div class="messages" id="msgBox"></div>
-        <div class="input-area">
-            <textarea id="uIn" placeholder="Napisz coś lub wklej kod..."></textarea>
-            <button class="btn btn-main" style="width: 80px;" onclick="handleSend()">Leć!</button>
-        </div>
-    </div>
+    <header class="main-header">
+        <div style="font-weight: bold;">MÓZG-AI <span style="color:var(--accent)">v3.0</span></div>
+        <div class="status-light" id="statusLabel">ONLINE</div>
+        <button class="btn btn-toggle" onclick="toggleBrain()">NAUKA 🧠</button>
+    </header>
 
-    <div class="admin-section">
-        <div id="loginGate">
-            <h3>🔐 Panel Wiedzy</h3>
-            <input type="password" id="pLock" placeholder="Hasło: 213005789Qu#@">
-            <button class="btn btn-dark" onclick="unlock()">Zaloguj</button>
+    <div class="app-layout">
+        <div class="chat-container">
+            <div class="messages" id="chatBox"></div>
+            <div class="input-bar">
+                <textarea id="userIn" placeholder="Pytaj o cokolwiek..."></textarea>
+                <button class="btn" style="background: var(--user-msg); color: white;" onclick="send()">WYŚLIJ</button>
+            </div>
         </div>
 
-        <div id="adminPanel" class="admin-content">
-            <h3>🧠 Ucz AI na serio</h3>
-            <p style="font-size: 12px; margin-bottom: 10px;">Skopiuj tekst z Wikipedii/MDN i wklej poniżej:</p>
-            <input type="text" id="kName" placeholder="Słowo kluczowe (np. JavaScript)">
-            <textarea class="big-area" id="kText" placeholder="Tutaj wklej całą treść strony..."></textarea>
-            <button class="btn btn-main" onclick="teachAI()">WGRAJ WIEDZĘ</button>
+        <div class="brain-panel" id="brainPanel">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="color:var(--accent); font-size:14px;">WGRAJ WIEDZĘ</h3>
+                <button class="btn-toggle" style="border:none" onclick="toggleBrain()">❌</button>
+            </div>
             
-            <h3 style="margin-top:20px;">📦 Baza Danych</h3>
-            <div id="status" class="db-status">Baza pusta.</div>
-            <button class="btn btn-dark" style="margin-top:10px; font-size:10px;" onclick="clearDB()">WYCZYŚĆ WSZYSTKO</button>
+            <div class="learning-zone">
+                <textarea class="big-input" id="sourceText" placeholder="Wklej tutaj treść ze strony (np. Wikipedia)..."></textarea>
+                <input type="text" id="sourceKey" placeholder="Temat (np. JavaScript)" style="width:100%; padding:10px; background:#161b22; border:1px solid #30363d; color:white; margin-bottom:10px; border-radius:6px;">
+                <button class="btn btn-learn" onclick="processKnowledge()">ZASSAJ WIEDZĘ</button>
+            </div>
+
+            <div style="font-size:12px; color:#8b949e;">TEMATY W BAZIE:</div>
+            <div id="tagList"></div>
+            
+            <button class="btn" style="background:#da3633; color:white; font-size:10px; margin-top:auto" onclick="resetBrain()">Wyczyść Pamięć</button>
         </div>
     </div>
-</div>
 
 <script>
-    // System przechowywania danych
-    let memory = JSON.parse(localStorage.getItem('ai_brain')) || [
-        { key: "siema", val: "No witaj! Jestem gotowy na nową wiedzę. Wklej coś w panelu obok!" }
-    ];
+    let brain = JSON.parse(localStorage.getItem('ai_mobile_v3')) || [];
 
-    const SECRET = "213005789Qu#@";
-
-    function unlock() {
-        if(document.getElementById('pLock').value === SECRET) {
-            document.getElementById('loginGate').style.display = 'none';
-            document.getElementById('adminPanel').classList.add('active');
-            refreshStatus();
-        } else { alert("Błędne hasło!"); }
+    function toggleBrain() {
+        document.getElementById('brainPanel').classList.toggle('active');
     }
 
-    function teachAI() {
-        const k = document.getElementById('kName').value.toLowerCase().trim();
-        const v = document.getElementById('kText').value.trim();
+    function processKnowledge() {
+        const text = document.getElementById('sourceText').value.trim();
+        let keys = document.getElementById('sourceKey').value.toLowerCase().trim();
 
-        if(k && v) {
-            memory.push({ key: k, val: v });
-            localStorage.setItem('ai_brain', JSON.stringify(memory));
-            addMsg(`Nauczyłem się o: <b>${k}</b>. Teraz możesz o to pytać!`, "ai");
-            document.getElementById('kName').value = '';
-            document.getElementById('kText').value = '';
-            refreshStatus();
-        }
+        if (text.length < 5) return alert("Za mało tekstu mordo!");
+
+        const newEntry = {
+            tags: keys ? keys.split(',') : ["ciekawostka"],
+            content: text
+        };
+
+        brain.push(newEntry);
+        localStorage.setItem('ai_mobile_v3', JSON.stringify(brain));
+        
+        document.getElementById('sourceText').value = '';
+        document.getElementById('sourceKey').value = '';
+        
+        renderTags();
+        if(window.innerWidth <= 850) toggleBrain();
+        addMsg("<b>ANALIZA:</b> Przeanalizowałem tekst o <u>" + (keys || "nowym temacie") + "</u> i dodałem do bazy.", "ai");
     }
 
-    function handleSend() {
-        const txt = document.getElementById('uIn').value.trim();
-        if(!txt) return;
-
-        addMsg(txt, "user");
-        document.getElementById('uIn').value = '';
-
-        setTimeout(() => {
-            const reply = findAnswer(txt);
-            addMsg(reply, "ai");
-        }, 600);
+    function send() {
+        const q = document.getElementById('userIn').value.trim();
+        if(!q) return;
+        addMsg(q, "user");
+        document.getElementById('userIn').value = '';
+        setTimeout(() => addMsg(searchInBrain(q), "ai"), 500);
     }
 
-    function findAnswer(q) {
-        const lowerQ = q.toLowerCase();
+    function searchInBrain(query) {
+        const q = query.toLowerCase();
         
         // Matematyka
-        if(lowerQ.match(/[0-9]+[\+\-\*\/][0-9]+/)) {
-            try { return "Wynik: <b>" + eval(lowerQ.match(/[0-9\+\-\*\/\(\)\.]+/)[0]) + "</b>"; } catch(e) {}
+        if (q.match(/[0-9]+[\+\-\*\/][0-9]+/)) {
+            try { return "Wynik: <b>" + eval(q.match(/[0-9\+\-\*\/\(\)\.]+/)[0]) + "</b>"; } catch(e) {}
         }
 
-        // Kod HTML
-        if(q.includes('<') && q.includes('>')) {
-            return `Wykryłem kod! <br><code class="code-box">${q.replace(/</g, '&lt;')}</code>`;
+        // Szukanie
+        let match = brain.find(e => e.tags.some(t => q.includes(t.trim())) || e.content.toLowerCase().includes(q));
+
+        if (match) {
+            if (match.content.includes('{') || match.content.includes('<')) {
+                return `Analiza kodu:<br><div class="code-view">${escapeHTML(match.content)}</div>`;
+            }
+            return `Oto co wiem:<br><br>${match.content.substring(0, 1000)}`;
         }
-
-        // Szukanie w pamięci
-        const entry = memory.find(m => lowerQ.includes(m.key));
-        if(entry) return entry.val;
-
-        return "Nie mam tego w bazie. Skopiuj tekst z internetu i wklej go w panelu 'Ucz AI', abym zapamiętał!";
+        return "Nie mam tego w bazie. Wklej treść w panelu 'NAUKA', abym mógł to przeanalizować.";
     }
 
     function addMsg(txt, type) {
-        const box = document.getElementById('msgBox');
-        const d = document.createElement('div');
-        d.className = `msg ${type}`;
-        d.innerHTML = txt;
-        box.appendChild(d);
+        const box = document.getElementById('chatBox');
+        const div = document.createElement('div');
+        div.className = `bubble ${type}`;
+        div.innerHTML = txt;
+        box.appendChild(div);
         box.scrollTop = box.scrollHeight;
     }
 
-    function refreshStatus() {
-        const s = document.getElementById('status');
-        s.innerHTML = "Wpisy w bazie: " + memory.length + "<br>" + memory.map(m => "• " + m.key).join("<br>");
+    function renderTags() {
+        const list = document.getElementById('tagList');
+        list.innerHTML = '';
+        brain.forEach(e => e.tags.forEach(t => {
+            const s = document.createElement('span');
+            s.className = 'tag';
+            s.innerText = t;
+            list.appendChild(s);
+        }));
     }
 
-    function clearDB() {
-        if(confirm("Usunąć całą wiedzę?")) {
-            localStorage.removeItem('ai_brain');
+    function escapeHTML(str) {
+        return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+    }
+
+    function resetBrain() {
+        if(confirm("Czyścimy wszystko?")) {
+            localStorage.clear();
             location.reload();
         }
     }
 
-    window.onload = () => addMsg("System operacyjny AI gotowy. Czekam na instrukcje.", "ai");
+    window.onload = () => {
+        renderTags();
+        addMsg("Siema! Wklej treść strony w panelu nauki, a przeanalizuję ją dla Ciebie.", "ai");
+    };
 </script>
-
 </body>
 </html>
