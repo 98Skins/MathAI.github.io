@@ -2,195 +2,282 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Math AI - 98Skins System</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Lokalny AI - System Realnej Nauki</title>
     <style>
-        :root { --bg: #0a0a0c; --side: #171717; --chat: #131314; --acc: #4facfe; --txt: #e3e3e3; --admin: #ff9f43; }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--txt); height: 100vh; display: flex; overflow: hidden; }
-
-        /* BOCZNY PANEL */
-        .sidebar { width: 280px; background: var(--side); display: flex; flex-direction: column; padding: 15px; border-right: 1px solid #333; transition: 0.3s; z-index: 100; }
-        @media (max-width: 768px) { .sidebar { position: absolute; left: 0; transform: translateX(-100%); bottom:0; top:0; } .sidebar.active { transform: translateX(0); } }
-        
-        .nav-btn { background: #2b2b2b; border: 1px solid #444; color: white; padding: 12px; border-radius: 12px; cursor: pointer; margin-bottom: 10px; width: 100%; font-weight: bold; }
-        .admin-btn { border-color: var(--admin); color: var(--admin); margin-top: auto; opacity: 0.5; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            min-height: 100vh;
+            display: flex; gap: 0; justify-content: center; align-items: center; padding: 20px;
+        }
+        .container {
+            background: #fff; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            width: 100%; max-width: 1200px; overflow: hidden; display: flex; flex-direction: column;
+        }
+        .header { background: #16213e; color: white; padding: 15px; text-align: center; border-bottom: 3px solid #e94560; }
+        .main-layout { display: flex; flex-direction: row; min-height: 600px; }
+        @media (max-width: 900px) { .main-layout { flex-direction: column; } }
 
         /* CZAT */
-        .main { flex: 1; display: flex; flex-direction: column; background: var(--chat); position: relative; }
-        .header { padding: 15px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; background: var(--chat); }
-        #chat-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .chat-panel { flex: 1.5; display: flex; flex-direction: column; border-right: 1px solid #eee; background: #f8f9fa; }
+        .chat-area { height: 500px; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .message { display: flex; gap: 10px; max-width: 90%; }
+        .message.user { align-self: flex-end; flex-direction: row-reverse; }
+        .message-content { padding: 12px 16px; border-radius: 15px; font-size: 14px; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; }
         
-        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; animation: fadeIn 0.3s ease; }
-        .ai { align-self: flex-start; background: #232324; border-bottom-left-radius: 2px; border: 1px solid #333; }
-        .user { align-self: flex-end; background: var(--acc); color: #000; border-bottom-right-radius: 2px; font-weight: 500; }
+        .code-snippet { 
+            background: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: 8px; 
+            font-family: 'Consolas', monospace; display: block; margin-top: 10px; 
+            border-left: 4px solid #e94560; overflow-x: auto; text-align: left; font-size: 12px;
+        }
 
-        /* INPUT */
-        .input-area { padding: 15px; width: 100%; max-width: 800px; margin: 0 auto; }
-        .input-box { background: #1e1f20; border-radius: 30px; padding: 5px 15px; display: flex; align-items: center; gap: 10px; border: 1px solid #444; }
-        input[type="text"] { flex: 1; background: none; border: none; color: white; padding: 12px; outline: none; font-size: 16px; }
-
-        /* MODAL ADMINA */
-        #admin-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1c1c1e; padding: 25px; border-radius: 25px; border: 2px solid var(--admin); z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
-        .admin-field { width: 100%; padding: 12px; margin: 10px 0; background: #2c2c2e; border: 1px solid #444; color: white; border-radius: 10px; }
+        .message.ai .message-content { background: #e2e2e2; border-bottom-left-radius: 2px; color: #111; }
+        .message.user .message-content { background: #e94560; color: white; border-bottom-right-radius: 2px; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
+        .copy-btn { background: #ccc; border: none; cursor: pointer; font-size: 10px; padding: 3px 7px; border-radius: 4px; margin-top: 5px; opacity: 0; transition: 0.3s; }
+        .copy-btn.visible { opacity: 1; }
+
+        /* ADMIN */
+        .admin-panel { flex: 1; background: #f1f1f1; padding: 20px; display: flex; flex-direction: column; gap: 15px; border-left: 1px solid #ddd; }
+        .admin-section { display: none; flex-direction: column; gap: 15px; }
+        .admin-section.active { display: flex; }
+        
+        .db-manager { background: white; border-radius: 10px; padding: 10px; max-height: 250px; overflow-y: auto; border: 1px solid #ddd; }
+        .db-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 11px; }
+        
+        .btn { padding: 10px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; transition: 0.2s; }
+        .btn:hover { opacity: 0.8; }
+        .btn-blue { background: #0f3460; width: 100%; }
+        .btn-green { background: #28a745; width: 100%; }
+        .btn-web { background: #6a1b9a; width: 100%; margin-top: 5px; font-size: 11px; }
+
+        textarea { width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: sans-serif; resize: vertical; }
+        input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 5px; }
+        
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #e94560; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="sidebar" id="sidebar">
-    <div style="font-weight: bold; margin-bottom: 20px; color: var(--acc); text-align: center;">98Skins AI System</div>
-    <button class="nav-btn" onclick="location.reload()">🔄 Nowa Sesja</button>
-    <div id="historyList" style="flex:1"></div>
-    <button class="nav-btn admin-btn" onclick="openAdmin()">⚙️ PANEL ADMINA</button>
-</div>
-
-<div class="main" onclick="closeSidebar()">
-    <div class="header">
-        <button onclick="event.stopPropagation(); toggleSidebar()" style="background:none; border:none; color:white; font-size:1.5rem">☰</button>
-        <b id="status-text" style="font-size: 0.75rem; color: #666;">Status: Gotowy (98Skins)</b>
-        <div style="width: 20px;"></div>
-    </div>
-    
-    <div id="chat-content"></div>
-
-    <div class="input-area">
-        <div class="input-box">
-            <input type="text" id="userInput" placeholder="Napisz do MathAI..." autocomplete="off" onkeypress="if(event.key==='Enter') solve()">
-            <button onclick="solve()" style="background:none; border:none; color:var(--acc); font-size:1.5rem">➤</button>
+<div class="container">
+    <div class="header"><h2>🤖 AI KODER PRO - Realne Uczenie</h2></div>
+    <div class="main-layout">
+        <div class="chat-panel">
+            <div class="chat-area" id="chatArea"></div>
+            <div class="input-area" style="padding:15px; display:flex; gap:10px; background: white; border-top: 1px solid #ddd;">
+                <textarea id="userInput" placeholder="Wklej kod lub zadaj pytanie..."></textarea>
+                <button class="btn btn-blue" onclick="sendMessage()" style="width:100px">Wyślij</button>
+            </div>
         </div>
-        <p style="font-size: 0.55rem; text-align: center; margin-top: 8px; color: #444;">Wszystkie rozmowy są logowane anonimowo w folderze /info.</p>
-    </div>
-</div>
 
-<div id="admin-modal">
-    <h3 style="color:var(--admin); margin-bottom: 10px;">Panel Uczenia AI</h3>
-    <input type="password" id="adminPass" class="admin-field" placeholder="Hasło...">
-    <div id="admin-tools" style="display:none">
-        <input type="text" id="trig" class="admin-field" placeholder="Trigger (np. sluchaj)">
-        <input type="text" id="resp" class="admin-field" placeholder="Odpowiedź AI...">
-        <button class="nav-btn" onclick="saveRule()" style="background:var(--admin); color:black">DODAJ REGULĘ</button>
+        <div class="admin-panel">
+            <h3 style="text-align:center">⚙️ Zarządzanie Wiedzą</h3>
+            
+            <div id="loginView">
+                <input type="password" id="adminPass" placeholder="Hasło administratora">
+                <button class="btn btn-blue" onclick="login()" style="margin-top:10px">Zaloguj</button>
+            </div>
+
+            <div id="mainView" class="admin-section">
+                <div style="font-weight: bold; font-size: 13px; color: #6a1b9a;">🌐 Pobierz wiedzę z URL:</div>
+                <input type="text" id="webSource" placeholder="Link do dokumentacji (np. Wikipedia)">
+                <button class="btn btn-web" id="learnBtn" onclick="learnFromWeb()">ANALIZUJ I ZAPAMIĘTAJ</button>
+                
+                <hr style="margin: 10px 0; border: 0.5px solid #ddd;">
+                
+                <div style="font-weight: bold; font-size: 13px;">Manualne Dodawanie:</div>
+                <input type="text" id="newKW" placeholder="Słowa kluczowe (po przecinku)">
+                <textarea id="newResp" placeholder="Treść odpowiedzi..."></textarea>
+                <button class="btn btn-green" onclick="saveNew()">DODAJ WPIS</button>
+                
+                <div class="db-manager" id="dbList"></div>
+                <button class="btn" style="background:#555; font-size:11px;" onclick="clearDB()">WYCZYŚĆ BAZĘ</button>
+            </div>
+        </div>
     </div>
-    <button class="nav-btn" onclick="closeAdmin()" style="margin-top:10px">Zamknij</button>
 </div>
 
 <script>
-    /* --- TWOJE KONKRETNE DANE --- */
-    const GH_TOKEN = "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";
-    const GH_REPO = "98Skins/MathAI.github.io"; // TWOJA NAZWA I TWOJE REPO!
-    const GH_FILE = "info/chat_log.json";
-    const USER_ID = "Guest_" + Math.random().toString(36).substr(2, 4).toUpperCase();
-    /* ---------------------------- */
+    let db = JSON.parse(localStorage.getItem('ai_real_db')) || [
+        { keywords: ["siema", "cześć", "hej"], response: "Witaj! Jestem gotowy do nauki i analizy Twojego kodu." },
+        { keywords: ["html", "css", "znaczniki"], response: "HTML to język znaczników. Jeśli wkleisz mi fragment kodu, sprawdzę czy nie ma błędów!" }
+    ];
+    
+    const PASS = "213005789Qu#@";
 
-    let customRules = JSON.parse(localStorage.getItem('ai_rules')) || {};
-
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-    function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); }
-    function openAdmin() { document.getElementById('admin-modal').style.display = 'block'; }
-    function closeAdmin() { document.getElementById('admin-modal').style.display = 'none'; document.getElementById('adminPass').value = ''; }
-
-    document.getElementById('adminPass').addEventListener('input', function(e) {
-        if(e.target.value === "213005789Qu#@") document.getElementById('admin-tools').style.display = 'block';
-    });
-
-    async function sendToCloud(u, a) {
-        const url = `https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`;
-        const status = document.getElementById('status-text');
-        status.innerText = "Status: Zapisywanie...";
+    // --- FUNKCJA REALNEJ NAUKI Z SIECI ---
+    async function learnFromWeb() {
+        const url = document.getElementById('webSource').value;
+        const btn = document.getElementById('learnBtn');
+        if(!url) return alert("Podaj URL!");
+        
+        btn.disabled = true;
+        btn.innerHTML = `<span class="loader"></span> Analizuję...`;
+        addMsg(`Próbuję pobrać dane z: ${url}...`, false);
 
         try {
-            let sha = "";
-            let logs = [];
+            // Korzystamy z AllOrigins aby ominąć blokadę CORS
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+            const response = await fetch(proxyUrl);
+            const data = await response.json();
+            const html = data.contents;
 
-            // Pobierz aktualny stan pliku
-            const res = await fetch(url, { headers: { "Authorization": `token ${GH_TOKEN}` } });
-            if (res.ok) {
-                const d = await res.json();
-                sha = d.sha;
-                logs = JSON.parse(decodeURIComponent(escape(atob(d.content))));
-            }
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Pobieranie esencji strony
+            const title = doc.querySelector('h1')?.innerText || doc.title || "Nowy temat";
+            const paragraphs = Array.from(doc.querySelectorAll('p')).map(p => p.innerText).slice(0, 3).join(' ');
+            
+            if(paragraphs.length < 20) throw new Error("Za mało treści");
 
-            // Dopisz nową wiadomość
-            logs.push({ id: USER_ID, time: new Date().toLocaleString(), msg: u, res: a });
+            const newEntry = {
+                keywords: [title.toLowerCase().split(' ')[0], url.split('/').pop()],
+                response: `Znalazłem informacje o "${title}": ${paragraphs.substring(0, 500)}... [Źródło: ${url}]`
+            };
 
-            // Wyślij z powrotem
-            const putRes = await fetch(url, {
-                method: "PUT",
-                headers: { "Authorization": `token ${GH_TOKEN}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    message: `Log od ${USER_ID}`,
-                    content: btoa(unescape(encodeURIComponent(JSON.stringify(logs, null, 2)))),
-                    sha: sha
-                })
-            });
-
-            if(putRes.ok) {
-                status.innerText = "Status: Zapisano w chmurze";
-                status.style.color = "#4facfe";
-            }
-        } catch(e) {
-            status.innerText = "Status: Błąd połączenia";
-            console.error(e);
+            db.push(newEntry);
+            localStorage.setItem('ai_real_db', JSON.stringify(db));
+            updateAdminList();
+            addMsg(`Sukces! Nauczyłem się o: ${title}. Możesz teraz pytać o ten temat.`, false);
+        } catch (e) {
+            addMsg("Błąd pobierania. Ta strona może blokować dostęp lub wymagać logowania.", false);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "ANALIZUJ I ZAPAMIĘTAJ";
         }
     }
 
-    function addMsg(txt, type) {
-        const d = document.createElement('div');
-        d.className = `msg ${type}`;
-        d.innerHTML = txt;
-        document.getElementById('chat-content').appendChild(d);
-        document.getElementById('chat-content').scrollTop = 99999;
+    // --- ANALIZA KODU I MATEMATYKA ---
+    function analyzeInput(input) {
+        // Matematyka
+        try {
+            const mathMatch = input.match(/(\d+[\+\-\*\/\s]+\d+)/);
+            if(mathMatch) {
+                const res = eval(mathMatch[0]);
+                return `Wynik obliczenia to: **${res}**`;
+            }
+        } catch(e) {}
+
+        // Analiza kodu HTML
+        if(input.includes('<') && input.includes('>')) {
+            let report = "Wykryłem kod HTML. Analizuję...\n";
+            if(!input.includes('</')) report += "⚠️ Uwaga: Wygląda na to, że zapomniałeś zamknąć niektóre tagi!\n";
+            if(input.toLowerCase().includes('<script')) report += "🛡️ Bezpieczeństwo: Widzę tag <script>, zachowaj ostrożność.\n";
+            return report + "Kod został zapisany w mojej pamięci sesyjnej.";
+        }
+
+        // Baza wiedzy
+        const clean = input.toLowerCase();
+        const found = db.find(item => item.keywords.some(k => clean.includes(k.toLowerCase())));
+        return found ? found.response : "Nie mam tego w bazie. Możesz mnie tego nauczyć w panelu admina!";
     }
 
-    function solve() {
-        const inp = document.getElementById('userInput');
-        const val = inp.value.trim();
+    // --- LOGIKA CZATU ---
+    function escapeHTML(str) {
+        return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+    }
+
+    function typeEffect(element, btn, text) {
+        let i = 0;
+        let isCode = text.includes('<') && text.includes('>');
+        if(isCode) {
+            element.innerHTML = `<code class="code-snippet">${escapeHTML(text)}</code>`;
+            btn.classList.add('visible');
+            return;
+        }
+        function typing() {
+            if (i < text.length) {
+                element.innerHTML += escapeHTML(text.charAt(i));
+                i++;
+                setTimeout(typing, 10);
+            } else { btn.classList.add('visible'); }
+        }
+        typing();
+    }
+
+    function addMsg(text, isUser) {
+        const area = document.getElementById('chatArea');
+        const m = document.createElement('div');
+        m.className = `message ${isUser ? 'user' : 'ai'}`;
+        const uid = "m" + Math.random().toString(36).substr(2, 9);
+        const bid = "b" + Math.random().toString(36).substr(2, 9);
+
+        m.innerHTML = `
+            <div class="message-wrapper">
+                <div class="message-content" id="${uid}">${isUser ? escapeHTML(text) : ''}</div>
+                ${!isUser ? `<button class="copy-btn" id="${bid}" onclick="copyTxt('${uid}')">📋 Kopiuj</button>` : ''}
+            </div>
+        `;
+        area.appendChild(m);
+        area.scrollTop = area.scrollHeight;
+
+        if(!isUser) typeEffect(document.getElementById(uid), document.getElementById(bid), text);
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('userInput');
+        const val = input.value.trim();
         if(!val) return;
-
-        addMsg(val, 'user');
-        inp.value = '';
-
-        setTimeout(() => {
-            let response = "";
-            let q = val.toLowerCase();
-
-            // 1. Sprawdź reguły admina
-            for(let k in customRules) { if(q.includes(k)) { response = customRules[k]; break; } }
-
-            // 2. Obsługa powitań
-            const powitania = ["hej", "siema", "cześć", "elo"];
-            if(!response && powitania.some(p => q.includes(p))) {
-                response = "Siema! Tu MathAI od 98Skins. Co tam u Ciebie?";
-            }
-
-            // 3. Logika matematyczna
-            if(!response) {
-                let clean = q.replace(/razy/g, "*").replace(/plus/g, "+").replace(/[a-ząćęłńóśźż?]/g, "").replace(/\s/g, "");
-                try {
-                    response = clean ? `Wynik: <b>${math.evaluate(clean)}</b>` : "Dzięki! Każda Twoja wiadomość uczy mój system.";
-                } catch(e) { response = "Spróbuj zapisać to działanie prościej!"; }
-            }
-
-            addMsg(response, 'ai');
-            sendToCloud(val, response); // Automatyczna synchronizacja
-        }, 500);
+        addMsg(val, true);
+        setTimeout(() => addMsg(analyzeInput(val), false), 600);
+        input.value = '';
     }
 
-    function saveRule() {
-        const t = document.getElementById('trig').value.toLowerCase().trim();
-        const r = document.getElementById('resp').value.trim();
-        if(t && r) {
-            customRules[t] = r;
-            localStorage.setItem('ai_rules', JSON.stringify(customRules));
-            sendToCloud("ADMIN_LEARN", `New: ${t} -> ${r}`);
-            alert("Dodano nową regułę do pamięci lokalnej i chmury!");
-            closeAdmin();
+    function copyTxt(id) {
+        const txt = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(txt);
+        alert("Skopiowano!");
+    }
+
+    // --- PANEL ADMINA ---
+    function login() {
+        if(document.getElementById('adminPass').value === PASS) {
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('mainView').classList.add('active');
+            updateAdminList();
+        } else alert("Hasło niepoprawne!");
+    }
+
+    function updateAdminList() {
+        const list = document.getElementById('dbList');
+        list.innerHTML = db.map((item, index) => `
+            <div class="db-item">
+                <span>${item.keywords[0]}</span>
+                <button onclick="removeItem(${index})" style="background:red; color:white; border:none; padding:2px 5px; border-radius:3px">X</button>
+            </div>
+        `).join('');
+    }
+
+    function saveNew() {
+        const k = document.getElementById('newKW').value.split(',').map(s => s.trim());
+        const r = document.getElementById('newResp').value;
+        if(k[0] && r) {
+            db.push({keywords: k, response: r});
+            localStorage.setItem('ai_real_db', JSON.stringify(db));
+            updateAdminList();
+            alert("Dodano!");
         }
     }
 
-    window.onload = () => addMsg("Witaj w systemie 98Skins AI. Twoje rozmowy pomagają mi się uczyć!", "ai");
+    function removeItem(i) {
+        db.splice(i, 1);
+        localStorage.setItem('ai_real_db', JSON.stringify(db));
+        updateAdminList();
+    }
+
+    function clearDB() {
+        if(confirm("Czy na pewno chcesz usunąć całą zdobytą wiedzę?")) {
+            localStorage.removeItem('ai_real_db');
+            location.reload();
+        }
+    }
+
+    window.onload = () => addMsg("System aktywny. Wklej kod do analizy lub użyj panelu admina, by pobrać wiedzę z internetu.", false);
 </script>
+
 </body>
 </html>
