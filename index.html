@@ -3,233 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lokalny AI Koder - System Realnej Wiedzy</title>
+    <title>AI KODER PRO - Lokalny Mózg</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background: #0f3460;
-            color: #333;
-            display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;
-        }
-        .container {
-            background: #fff; width: 100%; max-width: 1300px; height: 850px;
-            display: flex; flex-direction: column; border-radius: 15px; overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
-        .header { background: #16213e; color: #e94560; padding: 15px; text-align: center; font-weight: bold; border-bottom: 4px solid #e94560; }
+        :root { --main: #e94560; --bg: #1a1a2e; --panel: #16213e; --text: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         
-        .main-layout { display: flex; flex: 1; overflow: hidden; }
-        
-        /* PANEL CZATU */
-        .chat-panel { flex: 2; display: flex; flex-direction: column; background: #f4f4f9; }
-        .chat-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 15px; font-size: 14px; line-height: 1.5; position: relative; }
-        .message.ai { background: #e2e2e2; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .message.user { background: #e94560; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        
-        .code-block { 
-            background: #1e1e1e; color: #dcdcdc; padding: 10px; border-radius: 8px; 
-            font-family: 'Consolas', monospace; margin-top: 8px; display: block; overflow-x: auto;
-            border-left: 4px solid #e94560; font-size: 13px;
+        .app-container {
+            background: #fff; width: 100%; max-width: 1200px; height: 800px;
+            display: flex; border-radius: 15px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
 
-        .input-bar { padding: 20px; background: white; border-top: 1px solid #ddd; display: flex; gap: 10px; }
-        textarea { flex: 1; height: 50px; padding: 12px; border: 1px solid #ccc; border-radius: 8px; resize: none; }
+        /* CZAT */
+        .chat-section { flex: 2; display: flex; flex-direction: column; background: #f0f2f5; border-right: 2px solid #ddd; }
+        .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 12px 18px; border-radius: 18px; font-size: 14px; max-width: 80%; line-height: 1.4; }
+        .msg.ai { background: #e4e6eb; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .msg.user { background: var(--main); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .code-box { background: #282c34; color: #abb2bf; padding: 10px; border-radius: 5px; font-family: monospace; display: block; margin: 10px 0; overflow-x: auto; font-size: 12px; }
+
+        .input-area { padding: 20px; background: white; display: flex; gap: 10px; border-top: 1px solid #ddd; }
+        textarea { flex: 1; height: 50px; padding: 10px; border: 1px solid #ccc; border-radius: 10px; resize: none; }
 
         /* PANEL ADMINA */
-        .admin-panel { flex: 1; background: #f8f9fa; border-left: 2px solid #ddd; display: flex; flex-direction: column; padding: 20px; }
-        .admin-content { display: none; flex-direction: column; gap: 15px; height: 100%; }
-        .admin-content.active { display: flex; }
+        .admin-section { flex: 1; background: #f8f9fa; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .admin-content { display: none; }
+        .admin-content.active { display: block; }
         
-        .section-title { font-size: 12px; font-weight: bold; color: #555; text-transform: uppercase; margin-top: 10px; }
-        input, .admin-textarea { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 5px; font-size: 13px; }
-        .admin-textarea { height: 100px; resize: vertical; }
+        h3 { color: var(--panel); margin-bottom: 10px; font-size: 16px; border-bottom: 2px solid var(--main); padding-bottom: 5px; }
+        input, .big-area { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px; font-size: 13px; }
+        .big-area { height: 150px; resize: vertical; }
 
-        .db-list { flex: 1; overflow-y: auto; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 10px; }
-        .db-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; font-size: 12px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        .btn-main { background: var(--main); color: white; }
+        .btn-dark { background: var(--panel); color: white; }
+        .btn:hover { opacity: 0.8; transform: scale(0.98); }
 
-        .btn { padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; color: white; }
-        .btn-blue { background: #0f3460; }
-        .btn-green { background: #28a745; }
-        .btn-red { background: #e94560; }
-        .btn-small { padding: 4px 8px; font-size: 10px; }
-        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        .status-dot { height: 10px; width: 10px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .db-status { font-size: 11px; background: #eee; padding: 10px; border-radius: 5px; max-height: 200px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">🤖 AI KODER - SYSTEM REALNEJ WIEDZY</div>
-    
-    <div class="main-layout">
-        <div class="chat-panel">
-            <div class="chat-area" id="chatArea"></div>
-            <div class="input-bar">
-                <textarea id="userInput" placeholder="Wklej kod HTML lub zadaj pytanie..."></textarea>
-                <button class="btn btn-blue" onclick="sendMessage()">Wyślij</button>
-            </div>
+<div class="app-container">
+    <div class="chat-section">
+        <div class="messages" id="msgBox"></div>
+        <div class="input-area">
+            <textarea id="uIn" placeholder="Napisz coś lub wklej kod..."></textarea>
+            <button class="btn btn-main" style="width: 80px;" onclick="handleSend()">Leć!</button>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <div id="loginGate">
+            <h3>🔐 Panel Wiedzy</h3>
+            <input type="password" id="pLock" placeholder="Hasło: 213005789Qu#@">
+            <button class="btn btn-dark" onclick="unlock()">Zaloguj</button>
         </div>
 
-        <div class="admin-panel">
-            <div id="loginView">
-                <h3 style="margin-bottom:15px">Zaloguj do Systemu</h3>
-                <input type="password" id="adminPass" placeholder="Hasło (213005789Qu#@)">
-                <button class="btn btn-blue" style="width:100%" onclick="login()">Zaloguj</button>
-            </div>
-
-            <div id="adminView" class="admin-content">
-                <div style="font-size:13px; margin-bottom:10px;"><span class="status-dot"></span> System gotowy do nauki.</div>
-                
-                <div class="section-title">Metoda 1: Szybka Nauka (Wklej tekst)</div>
-                <input type="text" id="pasteTitle" placeholder="Temat (np. JavaScript pętle)">
-                <textarea class="admin-textarea" id="pasteContent" placeholder="Skopiuj i wklej tutaj treść ze strony (np. z Wikipedii)..."></textarea>
-                <button class="btn btn-green" onclick="learnFromPaste()">ANALIZUJ I ZAPAMIĘTAJ</button>
-
-                <div class="section-title">Baza Wiedzy</div>
-                <div class="db-list" id="dbList"></div>
-                
-                <div style="display:flex; gap:5px; margin-top:10px">
-                    <button class="btn btn-blue btn-small" style="flex:1" onclick="exportData()">EKSPORTUJ</button>
-                    <button class="btn btn-red btn-small" style="flex:1" onclick="clearData()">WYCZYŚĆ</button>
-                </div>
-            </div>
+        <div id="adminPanel" class="admin-content">
+            <h3>🧠 Ucz AI na serio</h3>
+            <p style="font-size: 12px; margin-bottom: 10px;">Skopiuj tekst z Wikipedii/MDN i wklej poniżej:</p>
+            <input type="text" id="kName" placeholder="Słowo kluczowe (np. JavaScript)">
+            <textarea class="big-area" id="kText" placeholder="Tutaj wklej całą treść strony..."></textarea>
+            <button class="btn btn-main" onclick="teachAI()">WGRAJ WIEDZĘ</button>
+            
+            <h3 style="margin-top:20px;">📦 Baza Danych</h3>
+            <div id="status" class="db-status">Baza pusta.</div>
+            <button class="btn btn-dark" style="margin-top:10px; font-size:10px;" onclick="clearDB()">WYCZYŚĆ WSZYSTKO</button>
         </div>
     </div>
 </div>
 
 <script>
-    // Inicjalizacja bazy (z localStorage)
-    let db = JSON.parse(localStorage.getItem('local_ai_knowledge')) || [
-        { keywords: ["siema", "cześć"], response: "Cześć! Jestem Twoim lokalnym asystentem. Możesz mnie uczyć wklejając teksty w panelu obok!" }
+    // System przechowywania danych
+    let memory = JSON.parse(localStorage.getItem('ai_brain')) || [
+        { key: "siema", val: "No witaj! Jestem gotowy na nową wiedzę. Wklej coś w panelu obok!" }
     ];
 
-    const ADMIN_PASS = "213005789Qu#@";
+    const SECRET = "213005789Qu#@";
 
-    // --- LOGOWANIE ---
-    function login() {
-        if(document.getElementById('adminPass').value === ADMIN_PASS) {
-            document.getElementById('loginView').style.display = 'none';
-            document.getElementById('adminView').classList.add('active');
-            updateDBList();
-        } else {
-            alert("Niepoprawne hasło!");
+    function unlock() {
+        if(document.getElementById('pLock').value === SECRET) {
+            document.getElementById('loginGate').style.display = 'none';
+            document.getElementById('adminPanel').classList.add('active');
+            refreshStatus();
+        } else { alert("Błędne hasło!"); }
+    }
+
+    function teachAI() {
+        const k = document.getElementById('kName').value.toLowerCase().trim();
+        const v = document.getElementById('kText').value.trim();
+
+        if(k && v) {
+            memory.push({ key: k, val: v });
+            localStorage.setItem('ai_brain', JSON.stringify(memory));
+            addMsg(`Nauczyłem się o: <b>${k}</b>. Teraz możesz o to pytać!`, "ai");
+            document.getElementById('kName').value = '';
+            document.getElementById('kText').value = '';
+            refreshStatus();
         }
     }
 
-    // --- NAUKA PRZEZ WKLEJANIE (NIEZAWODNA) ---
-    function learnFromPaste() {
-        const title = document.getElementById('pasteTitle').value.trim();
-        const content = document.getElementById('pasteContent').value.trim();
+    function handleSend() {
+        const txt = document.getElementById('uIn').value.trim();
+        if(!txt) return;
 
-        if(!title || !content) return alert("Podaj temat i wklej treść!");
-
-        const newEntry = {
-            keywords: title.toLowerCase().split(' '),
-            response: `Informacje o "${title}":\n${content.substring(0, 1000)}`
-        };
-
-        db.push(newEntry);
-        saveDB();
-        updateDBList();
-        
-        document.getElementById('pasteTitle').value = '';
-        document.getElementById('pasteContent').value = '';
-        
-        addMsg(`Dodałem nową wiedzę o: <b>${title}</b>. Możesz teraz o to pytać!`, false);
-    }
-
-    // --- OBSŁUGA CZATU ---
-    function sendMessage() {
-        const input = document.getElementById('userInput');
-        const text = input.value.trim();
-        if(!text) return;
-
-        addMsg(text, true);
-        input.value = '';
+        addMsg(txt, "user");
+        document.getElementById('uIn').value = '';
 
         setTimeout(() => {
-            const response = processInput(text);
-            addMsg(response, false);
-        }, 500);
+            const reply = findAnswer(txt);
+            addMsg(reply, "ai");
+        }, 600);
     }
 
-    function processInput(input) {
-        const cleanInput = input.toLowerCase();
-
-        // 1. Wykrywanie matematyki
-        const mathMatch = input.match(/(\d+[\s\+\-\*\/\(\)]+\d+)/);
-        if(mathMatch) {
-            try { return `Wynik działania to: **${eval(mathMatch[0])}**`; } catch(e) {}
+    function findAnswer(q) {
+        const lowerQ = q.toLowerCase();
+        
+        // Matematyka
+        if(lowerQ.match(/[0-9]+[\+\-\*\/][0-9]+/)) {
+            try { return "Wynik: <b>" + eval(lowerQ.match(/[0-9\+\-\*\/\(\)\.]+/)[0]) + "</b>"; } catch(e) {}
         }
 
-        // 2. Wykrywanie kodu HTML
-        if(input.includes('<') && input.includes('>')) {
-            return `Wykryłem kod! Oto on:\n<code class="code-block">${escapeHTML(input)}</code>\nAnaliza: Kod wygląda na strukturę HTML. Jeśli chcesz go sprawdzić, zapytaj o konkretny tag.`;
+        // Kod HTML
+        if(q.includes('<') && q.includes('>')) {
+            return `Wykryłem kod! <br><code class="code-box">${q.replace(/</g, '&lt;')}</code>`;
         }
 
-        // 3. Przeszukiwanie bazy wiedzy
-        const found = db.find(entry => 
-            entry.keywords.some(k => cleanInput.includes(k) && k.length > 2)
-        );
+        // Szukanie w pamięci
+        const entry = memory.find(m => lowerQ.includes(m.key));
+        if(entry) return entry.val;
 
-        return found ? found.response : "Nie wiem tego jeszcze. Skopiuj tekst na ten temat ze strony i wklej w panelu nauki!";
+        return "Nie mam tego w bazie. Skopiuj tekst z internetu i wklej go w panelu 'Ucz AI', abym zapamiętał!";
     }
 
-    function addMsg(content, isUser) {
-        const chatArea = document.getElementById('chatArea');
-        const div = document.createElement('div');
-        div.className = `message ${isUser ? 'user' : 'ai'}`;
-        div.innerHTML = content;
-        chatArea.appendChild(div);
-        chatArea.scrollTop = chatArea.scrollHeight;
+    function addMsg(txt, type) {
+        const box = document.getElementById('msgBox');
+        const d = document.createElement('div');
+        d.className = `msg ${type}`;
+        d.innerHTML = txt;
+        box.appendChild(d);
+        box.scrollTop = box.scrollHeight;
     }
 
-    function escapeHTML(str) {
-        return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+    function refreshStatus() {
+        const s = document.getElementById('status');
+        s.innerHTML = "Wpisy w bazie: " + memory.length + "<br>" + memory.map(m => "• " + m.key).join("<br>");
     }
 
-    // --- ZARZĄDZANIE BAZĄ ---
-    function updateDBList() {
-        const list = document.getElementById('dbList');
-        list.innerHTML = db.map((item, index) => `
-            <div class="db-item">
-                <span>${item.keywords[0]}</span>
-                <button class="btn btn-red btn-small" onclick="removeItem(${index})">USUŃ</button>
-            </div>
-        `).join('');
-    }
-
-    function removeItem(index) {
-        db.splice(index, 1);
-        saveDB();
-        updateDBList();
-    }
-
-    function saveDB() {
-        localStorage.setItem('local_ai_knowledge', JSON.stringify(db));
-    }
-
-    function clearData() {
-        if(confirm("Czy na pewno usunąć całą wiedzę?")) {
-            localStorage.removeItem('local_ai_knowledge');
+    function clearDB() {
+        if(confirm("Usunąć całą wiedzę?")) {
+            localStorage.removeItem('ai_brain');
             location.reload();
         }
     }
 
-    function exportData() {
-        const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'baza_ai.json';
-        a.click();
-    }
-
-    window.onload = () => addMsg("System gotowy. Zaloguj się w panelu bocznym, aby zarządzać moją wiedzą.", false);
+    window.onload = () => addMsg("System operacyjny AI gotowy. Czekam na instrukcje.", "ai");
 </script>
 
 </body>
