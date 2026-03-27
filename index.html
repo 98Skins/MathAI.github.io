@@ -2,281 +2,234 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Lokalny AI - System Realnej Nauki</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lokalny AI Koder - System Realnej Wiedzy</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a2e;
-            min-height: 100vh;
-            display: flex; gap: 0; justify-content: center; align-items: center; padding: 20px;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: #0f3460;
+            color: #333;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;
         }
         .container {
-            background: #fff; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            width: 100%; max-width: 1200px; overflow: hidden; display: flex; flex-direction: column;
+            background: #fff; width: 100%; max-width: 1300px; height: 850px;
+            display: flex; flex-direction: column; border-radius: 15px; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
         }
-        .header { background: #16213e; color: white; padding: 15px; text-align: center; border-bottom: 3px solid #e94560; }
-        .main-layout { display: flex; flex-direction: row; min-height: 600px; }
-        @media (max-width: 900px) { .main-layout { flex-direction: column; } }
-
-        /* CZAT */
-        .chat-panel { flex: 1.5; display: flex; flex-direction: column; border-right: 1px solid #eee; background: #f8f9fa; }
-        .chat-area { height: 500px; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
-        .message { display: flex; gap: 10px; max-width: 90%; }
-        .message.user { align-self: flex-end; flex-direction: row-reverse; }
-        .message-content { padding: 12px 16px; border-radius: 15px; font-size: 14px; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; }
+        .header { background: #16213e; color: #e94560; padding: 15px; text-align: center; font-weight: bold; border-bottom: 4px solid #e94560; }
         
-        .code-snippet { 
-            background: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: 8px; 
-            font-family: 'Consolas', monospace; display: block; margin-top: 10px; 
-            border-left: 4px solid #e94560; overflow-x: auto; text-align: left; font-size: 12px;
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
+        
+        /* PANEL CZATU */
+        .chat-panel { flex: 2; display: flex; flex-direction: column; background: #f4f4f9; }
+        .chat-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 15px; font-size: 14px; line-height: 1.5; position: relative; }
+        .message.ai { background: #e2e2e2; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .message.user { background: #e94560; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        
+        .code-block { 
+            background: #1e1e1e; color: #dcdcdc; padding: 10px; border-radius: 8px; 
+            font-family: 'Consolas', monospace; margin-top: 8px; display: block; overflow-x: auto;
+            border-left: 4px solid #e94560; font-size: 13px;
         }
 
-        .message.ai .message-content { background: #e2e2e2; border-bottom-left-radius: 2px; color: #111; }
-        .message.user .message-content { background: #e94560; color: white; border-bottom-right-radius: 2px; }
-        
-        .copy-btn { background: #ccc; border: none; cursor: pointer; font-size: 10px; padding: 3px 7px; border-radius: 4px; margin-top: 5px; opacity: 0; transition: 0.3s; }
-        .copy-btn.visible { opacity: 1; }
+        .input-bar { padding: 20px; background: white; border-top: 1px solid #ddd; display: flex; gap: 10px; }
+        textarea { flex: 1; height: 50px; padding: 12px; border: 1px solid #ccc; border-radius: 8px; resize: none; }
 
-        /* ADMIN */
-        .admin-panel { flex: 1; background: #f1f1f1; padding: 20px; display: flex; flex-direction: column; gap: 15px; border-left: 1px solid #ddd; }
-        .admin-section { display: none; flex-direction: column; gap: 15px; }
-        .admin-section.active { display: flex; }
+        /* PANEL ADMINA */
+        .admin-panel { flex: 1; background: #f8f9fa; border-left: 2px solid #ddd; display: flex; flex-direction: column; padding: 20px; }
+        .admin-content { display: none; flex-direction: column; gap: 15px; height: 100%; }
+        .admin-content.active { display: flex; }
         
-        .db-manager { background: white; border-radius: 10px; padding: 10px; max-height: 250px; overflow-y: auto; border: 1px solid #ddd; }
-        .db-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 11px; }
-        
-        .btn { padding: 10px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; transition: 0.2s; }
-        .btn:hover { opacity: 0.8; }
-        .btn-blue { background: #0f3460; width: 100%; }
-        .btn-green { background: #28a745; width: 100%; }
-        .btn-web { background: #6a1b9a; width: 100%; margin-top: 5px; font-size: 11px; }
+        .section-title { font-size: 12px; font-weight: bold; color: #555; text-transform: uppercase; margin-top: 10px; }
+        input, .admin-textarea { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 5px; font-size: 13px; }
+        .admin-textarea { height: 100px; resize: vertical; }
 
-        textarea { width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: sans-serif; resize: vertical; }
-        input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 5px; }
-        
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #e94560; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 10px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .db-list { flex: 1; overflow-y: auto; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 10px; }
+        .db-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; font-size: 12px; }
+
+        .btn { padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; color: white; }
+        .btn-blue { background: #0f3460; }
+        .btn-green { background: #28a745; }
+        .btn-red { background: #e94560; }
+        .btn-small { padding: 4px 8px; font-size: 10px; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .status-dot { height: 10px; width: 10px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header"><h2>🤖 AI KODER PRO - Realne Uczenie</h2></div>
+    <div class="header">🤖 AI KODER - SYSTEM REALNEJ WIEDZY</div>
+    
     <div class="main-layout">
         <div class="chat-panel">
             <div class="chat-area" id="chatArea"></div>
-            <div class="input-area" style="padding:15px; display:flex; gap:10px; background: white; border-top: 1px solid #ddd;">
-                <textarea id="userInput" placeholder="Wklej kod lub zadaj pytanie..."></textarea>
-                <button class="btn btn-blue" onclick="sendMessage()" style="width:100px">Wyślij</button>
+            <div class="input-bar">
+                <textarea id="userInput" placeholder="Wklej kod HTML lub zadaj pytanie..."></textarea>
+                <button class="btn btn-blue" onclick="sendMessage()">Wyślij</button>
             </div>
         </div>
 
         <div class="admin-panel">
-            <h3 style="text-align:center">⚙️ Zarządzanie Wiedzą</h3>
-            
             <div id="loginView">
-                <input type="password" id="adminPass" placeholder="Hasło administratora">
-                <button class="btn btn-blue" onclick="login()" style="margin-top:10px">Zaloguj</button>
+                <h3 style="margin-bottom:15px">Zaloguj do Systemu</h3>
+                <input type="password" id="adminPass" placeholder="Hasło (213005789Qu#@)">
+                <button class="btn btn-blue" style="width:100%" onclick="login()">Zaloguj</button>
             </div>
 
-            <div id="mainView" class="admin-section">
-                <div style="font-weight: bold; font-size: 13px; color: #6a1b9a;">🌐 Pobierz wiedzę z URL:</div>
-                <input type="text" id="webSource" placeholder="Link do dokumentacji (np. Wikipedia)">
-                <button class="btn btn-web" id="learnBtn" onclick="learnFromWeb()">ANALIZUJ I ZAPAMIĘTAJ</button>
+            <div id="adminView" class="admin-content">
+                <div style="font-size:13px; margin-bottom:10px;"><span class="status-dot"></span> System gotowy do nauki.</div>
                 
-                <hr style="margin: 10px 0; border: 0.5px solid #ddd;">
+                <div class="section-title">Metoda 1: Szybka Nauka (Wklej tekst)</div>
+                <input type="text" id="pasteTitle" placeholder="Temat (np. JavaScript pętle)">
+                <textarea class="admin-textarea" id="pasteContent" placeholder="Skopiuj i wklej tutaj treść ze strony (np. z Wikipedii)..."></textarea>
+                <button class="btn btn-green" onclick="learnFromPaste()">ANALIZUJ I ZAPAMIĘTAJ</button>
+
+                <div class="section-title">Baza Wiedzy</div>
+                <div class="db-list" id="dbList"></div>
                 
-                <div style="font-weight: bold; font-size: 13px;">Manualne Dodawanie:</div>
-                <input type="text" id="newKW" placeholder="Słowa kluczowe (po przecinku)">
-                <textarea id="newResp" placeholder="Treść odpowiedzi..."></textarea>
-                <button class="btn btn-green" onclick="saveNew()">DODAJ WPIS</button>
-                
-                <div class="db-manager" id="dbList"></div>
-                <button class="btn" style="background:#555; font-size:11px;" onclick="clearDB()">WYCZYŚĆ BAZĘ</button>
+                <div style="display:flex; gap:5px; margin-top:10px">
+                    <button class="btn btn-blue btn-small" style="flex:1" onclick="exportData()">EKSPORTUJ</button>
+                    <button class="btn btn-red btn-small" style="flex:1" onclick="clearData()">WYCZYŚĆ</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('ai_real_db')) || [
-        { keywords: ["siema", "cześć", "hej"], response: "Witaj! Jestem gotowy do nauki i analizy Twojego kodu." },
-        { keywords: ["html", "css", "znaczniki"], response: "HTML to język znaczników. Jeśli wkleisz mi fragment kodu, sprawdzę czy nie ma błędów!" }
+    // Inicjalizacja bazy (z localStorage)
+    let db = JSON.parse(localStorage.getItem('local_ai_knowledge')) || [
+        { keywords: ["siema", "cześć"], response: "Cześć! Jestem Twoim lokalnym asystentem. Możesz mnie uczyć wklejając teksty w panelu obok!" }
     ];
-    
-    const PASS = "213005789Qu#@";
 
-    // --- FUNKCJA REALNEJ NAUKI Z SIECI ---
-    async function learnFromWeb() {
-        const url = document.getElementById('webSource').value;
-        const btn = document.getElementById('learnBtn');
-        if(!url) return alert("Podaj URL!");
+    const ADMIN_PASS = "213005789Qu#@";
+
+    // --- LOGOWANIE ---
+    function login() {
+        if(document.getElementById('adminPass').value === ADMIN_PASS) {
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('adminView').classList.add('active');
+            updateDBList();
+        } else {
+            alert("Niepoprawne hasło!");
+        }
+    }
+
+    // --- NAUKA PRZEZ WKLEJANIE (NIEZAWODNA) ---
+    function learnFromPaste() {
+        const title = document.getElementById('pasteTitle').value.trim();
+        const content = document.getElementById('pasteContent').value.trim();
+
+        if(!title || !content) return alert("Podaj temat i wklej treść!");
+
+        const newEntry = {
+            keywords: title.toLowerCase().split(' '),
+            response: `Informacje o "${title}":\n${content.substring(0, 1000)}`
+        };
+
+        db.push(newEntry);
+        saveDB();
+        updateDBList();
         
-        btn.disabled = true;
-        btn.innerHTML = `<span class="loader"></span> Analizuję...`;
-        addMsg(`Próbuję pobrać dane z: ${url}...`, false);
-
-        try {
-            // Korzystamy z AllOrigins aby ominąć blokadę CORS
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-            const response = await fetch(proxyUrl);
-            const data = await response.json();
-            const html = data.contents;
-
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // Pobieranie esencji strony
-            const title = doc.querySelector('h1')?.innerText || doc.title || "Nowy temat";
-            const paragraphs = Array.from(doc.querySelectorAll('p')).map(p => p.innerText).slice(0, 3).join(' ');
-            
-            if(paragraphs.length < 20) throw new Error("Za mało treści");
-
-            const newEntry = {
-                keywords: [title.toLowerCase().split(' ')[0], url.split('/').pop()],
-                response: `Znalazłem informacje o "${title}": ${paragraphs.substring(0, 500)}... [Źródło: ${url}]`
-            };
-
-            db.push(newEntry);
-            localStorage.setItem('ai_real_db', JSON.stringify(db));
-            updateAdminList();
-            addMsg(`Sukces! Nauczyłem się o: ${title}. Możesz teraz pytać o ten temat.`, false);
-        } catch (e) {
-            addMsg("Błąd pobierania. Ta strona może blokować dostęp lub wymagać logowania.", false);
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "ANALIZUJ I ZAPAMIĘTAJ";
-        }
+        document.getElementById('pasteTitle').value = '';
+        document.getElementById('pasteContent').value = '';
+        
+        addMsg(`Dodałem nową wiedzę o: <b>${title}</b>. Możesz teraz o to pytać!`, false);
     }
 
-    // --- ANALIZA KODU I MATEMATYKA ---
-    function analyzeInput(input) {
-        // Matematyka
-        try {
-            const mathMatch = input.match(/(\d+[\+\-\*\/\s]+\d+)/);
-            if(mathMatch) {
-                const res = eval(mathMatch[0]);
-                return `Wynik obliczenia to: **${res}**`;
-            }
-        } catch(e) {}
+    // --- OBSŁUGA CZATU ---
+    function sendMessage() {
+        const input = document.getElementById('userInput');
+        const text = input.value.trim();
+        if(!text) return;
 
-        // Analiza kodu HTML
+        addMsg(text, true);
+        input.value = '';
+
+        setTimeout(() => {
+            const response = processInput(text);
+            addMsg(response, false);
+        }, 500);
+    }
+
+    function processInput(input) {
+        const cleanInput = input.toLowerCase();
+
+        // 1. Wykrywanie matematyki
+        const mathMatch = input.match(/(\d+[\s\+\-\*\/\(\)]+\d+)/);
+        if(mathMatch) {
+            try { return `Wynik działania to: **${eval(mathMatch[0])}**`; } catch(e) {}
+        }
+
+        // 2. Wykrywanie kodu HTML
         if(input.includes('<') && input.includes('>')) {
-            let report = "Wykryłem kod HTML. Analizuję...\n";
-            if(!input.includes('</')) report += "⚠️ Uwaga: Wygląda na to, że zapomniałeś zamknąć niektóre tagi!\n";
-            if(input.toLowerCase().includes('<script')) report += "🛡️ Bezpieczeństwo: Widzę tag <script>, zachowaj ostrożność.\n";
-            return report + "Kod został zapisany w mojej pamięci sesyjnej.";
+            return `Wykryłem kod! Oto on:\n<code class="code-block">${escapeHTML(input)}</code>\nAnaliza: Kod wygląda na strukturę HTML. Jeśli chcesz go sprawdzić, zapytaj o konkretny tag.`;
         }
 
-        // Baza wiedzy
-        const clean = input.toLowerCase();
-        const found = db.find(item => item.keywords.some(k => clean.includes(k.toLowerCase())));
-        return found ? found.response : "Nie mam tego w bazie. Możesz mnie tego nauczyć w panelu admina!";
+        // 3. Przeszukiwanie bazy wiedzy
+        const found = db.find(entry => 
+            entry.keywords.some(k => cleanInput.includes(k) && k.length > 2)
+        );
+
+        return found ? found.response : "Nie wiem tego jeszcze. Skopiuj tekst na ten temat ze strony i wklej w panelu nauki!";
     }
 
-    // --- LOGIKA CZATU ---
+    function addMsg(content, isUser) {
+        const chatArea = document.getElementById('chatArea');
+        const div = document.createElement('div');
+        div.className = `message ${isUser ? 'user' : 'ai'}`;
+        div.innerHTML = content;
+        chatArea.appendChild(div);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
     function escapeHTML(str) {
         return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
     }
 
-    function typeEffect(element, btn, text) {
-        let i = 0;
-        let isCode = text.includes('<') && text.includes('>');
-        if(isCode) {
-            element.innerHTML = `<code class="code-snippet">${escapeHTML(text)}</code>`;
-            btn.classList.add('visible');
-            return;
-        }
-        function typing() {
-            if (i < text.length) {
-                element.innerHTML += escapeHTML(text.charAt(i));
-                i++;
-                setTimeout(typing, 10);
-            } else { btn.classList.add('visible'); }
-        }
-        typing();
-    }
-
-    function addMsg(text, isUser) {
-        const area = document.getElementById('chatArea');
-        const m = document.createElement('div');
-        m.className = `message ${isUser ? 'user' : 'ai'}`;
-        const uid = "m" + Math.random().toString(36).substr(2, 9);
-        const bid = "b" + Math.random().toString(36).substr(2, 9);
-
-        m.innerHTML = `
-            <div class="message-wrapper">
-                <div class="message-content" id="${uid}">${isUser ? escapeHTML(text) : ''}</div>
-                ${!isUser ? `<button class="copy-btn" id="${bid}" onclick="copyTxt('${uid}')">📋 Kopiuj</button>` : ''}
-            </div>
-        `;
-        area.appendChild(m);
-        area.scrollTop = area.scrollHeight;
-
-        if(!isUser) typeEffect(document.getElementById(uid), document.getElementById(bid), text);
-    }
-
-    function sendMessage() {
-        const input = document.getElementById('userInput');
-        const val = input.value.trim();
-        if(!val) return;
-        addMsg(val, true);
-        setTimeout(() => addMsg(analyzeInput(val), false), 600);
-        input.value = '';
-    }
-
-    function copyTxt(id) {
-        const txt = document.getElementById(id).innerText;
-        navigator.clipboard.writeText(txt);
-        alert("Skopiowano!");
-    }
-
-    // --- PANEL ADMINA ---
-    function login() {
-        if(document.getElementById('adminPass').value === PASS) {
-            document.getElementById('loginView').style.display = 'none';
-            document.getElementById('mainView').classList.add('active');
-            updateAdminList();
-        } else alert("Hasło niepoprawne!");
-    }
-
-    function updateAdminList() {
+    // --- ZARZĄDZANIE BAZĄ ---
+    function updateDBList() {
         const list = document.getElementById('dbList');
         list.innerHTML = db.map((item, index) => `
             <div class="db-item">
                 <span>${item.keywords[0]}</span>
-                <button onclick="removeItem(${index})" style="background:red; color:white; border:none; padding:2px 5px; border-radius:3px">X</button>
+                <button class="btn btn-red btn-small" onclick="removeItem(${index})">USUŃ</button>
             </div>
         `).join('');
     }
 
-    function saveNew() {
-        const k = document.getElementById('newKW').value.split(',').map(s => s.trim());
-        const r = document.getElementById('newResp').value;
-        if(k[0] && r) {
-            db.push({keywords: k, response: r});
-            localStorage.setItem('ai_real_db', JSON.stringify(db));
-            updateAdminList();
-            alert("Dodano!");
-        }
+    function removeItem(index) {
+        db.splice(index, 1);
+        saveDB();
+        updateDBList();
     }
 
-    function removeItem(i) {
-        db.splice(i, 1);
-        localStorage.setItem('ai_real_db', JSON.stringify(db));
-        updateAdminList();
+    function saveDB() {
+        localStorage.setItem('local_ai_knowledge', JSON.stringify(db));
     }
 
-    function clearDB() {
-        if(confirm("Czy na pewno chcesz usunąć całą zdobytą wiedzę?")) {
-            localStorage.removeItem('ai_real_db');
+    function clearData() {
+        if(confirm("Czy na pewno usunąć całą wiedzę?")) {
+            localStorage.removeItem('local_ai_knowledge');
             location.reload();
         }
     }
 
-    window.onload = () => addMsg("System aktywny. Wklej kod do analizy lub użyj panelu admina, by pobrać wiedzę z internetu.", false);
+    function exportData() {
+        const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'baza_ai.json';
+        a.click();
+    }
+
+    window.onload = () => addMsg("System gotowy. Zaloguj się w panelu bocznym, aby zarządzać moją wiedzą.", false);
 </script>
 
 </body>
