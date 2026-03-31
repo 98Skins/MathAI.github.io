@@ -2,202 +2,652 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI KODER PRO - Mobile & PC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AI Code Architect - GitHub HTML Generator</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- GitHub Markdown style for preview (optional) -->
     <style>
-        :root { --accent: #00ffcc; --bg: #0a0b10; --card: #161b22; --text: #e6edf3; --user-msg: #238636; }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        
-        body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* HEADER */
-        .main-header { 
-            background: var(--card); padding: 15px; border-bottom: 1px solid #30363d; 
-            display: flex; justify-content: space-between; align-items: center; z-index: 100;
-        }
-        .status-light { color: var(--accent); font-size: 12px; display: flex; align-items: center; gap: 5px; }
-        .status-light::before { content: ''; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 5px var(--accent); }
-
-        /* LAYOUT KONTEJNER */
-        .app-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
-
-        /* LEWY PANEL - CZAT */
-        .chat-container { 
-            flex: 2; display: flex; flex-direction: column; background: var(--bg); 
-            transition: all 0.3s ease;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        
-        .bubble { max-width: 85%; padding: 12px; border-radius: 12px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
-        .bubble.ai { background: #21262d; align-self: flex-start; border: 1px solid #30363d; }
-        .bubble.user { background: var(--user-msg); align-self: flex-end; color: white; }
-        
-        .code-view { 
-            background: #000; color: #58a6ff; padding: 10px; border-radius: 6px; 
-            font-family: monospace; font-size: 12px; margin-top: 8px; overflow-x: auto; border: 1px solid #30363d; 
+        body {
+            background: linear-gradient(145deg, #0b1120 0%, #111827 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            color: #e2e8f0;
         }
 
-        .input-bar { padding: 15px; background: var(--card); border-top: 1px solid #30363d; display: flex; gap: 10px; }
-        #userIn { flex: 1; background: #0d1117; border: 1px solid #30363d; color: white; padding: 10px; border-radius: 8px; resize: none; height: 45px; }
+        /* inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
 
-        /* PRAWY PANEL - NAUKA */
-        .brain-panel { 
-            flex: 1; background: var(--card); border-left: 1px solid #30363d; 
-            padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto;
-            transition: transform 0.3s ease;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .learning-zone { background: #0d1117; padding: 15px; border-radius: 10px; border: 1px solid var(--accent); }
-        .big-input { width: 100%; height: 150px; background: #161b22; border: 1px solid #30363d; color: #e6edf3; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
-        
-        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-learn { background: var(--accent); color: #000; width: 100%; }
-        .btn-toggle { display: none; background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 5px 10px; }
+        /* header */
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
 
-        /* MEDIA QUERIES - NA TELEFON */
-        @media (max-width: 850px) {
-            .btn-toggle { display: block; }
-            .brain-panel { 
-                position: absolute; right: 0; top: 0; bottom: 0; width: 85%; 
-                transform: translateX(100%); z-index: 50; box-shadow: -10px 0 20px rgba(0,0,0,0.5);
+        .badge {
+            background: #1e293b;
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(4px);
+            margin-bottom: 1rem;
+            border: 1px solid #334155;
+        }
+
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #c084fc, #60a5fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .sub {
+            color: #94a3b8;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* main grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8rem;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
-            .brain-panel.active { transform: translateX(0); }
-            .chat-container { flex: 1; }
+            body {
+                padding: 1.2rem;
+            }
         }
 
-        .tag { background: #21262d; padding: 4px 8px; border-radius: 6px; font-size: 11px; border: 1px solid #30363d; display: inline-block; margin: 2px; }
+        /* cards */
+        .card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            overflow: hidden;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s;
+        }
+
+        .card-header {
+            padding: 1.2rem 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .card-header i {
+            color: #60a5fa;
+            font-size: 1.3rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* form elements */
+        .api-section {
+            background: #0f172a;
+            border-radius: 1.2rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.4rem;
+            color: #9ca3af;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            background: #0a0f1c;
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            color: #f1f5f9;
+            font-size: 0.9rem;
+            font-family: 'Inter', monospace;
+            transition: 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        }
+
+        textarea {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            resize: vertical;
+            min-height: 220px;
+        }
+
+        button {
+            background: linear-gradient(105deg, #4f46e5, #7c3aed);
+            border: none;
+            border-radius: 2rem;
+            padding: 0.7rem 1.3rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .btn-secondary {
+            background: #1e293b;
+            border: 1px solid #475569;
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: #2d3a4f;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #60a5fa;
+            box-shadow: none;
+        }
+
+        .status {
+            margin-top: 1rem;
+            padding: 0.6rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            background: #0f172a;
+            border-left: 4px solid #4f46e5;
+        }
+
+        .status.error {
+            border-left-color: #ef4444;
+            background: #1e1a2f;
+        }
+
+        .status.success {
+            border-left-color: #10b981;
+        }
+
+        .code-preview {
+            background: #010409;
+            border-radius: 1rem;
+            overflow: auto;
+            max-height: 400px;
+            font-size: 0.8rem;
+        }
+
+        .code-preview pre {
+            padding: 1rem;
+            margin: 0;
+            color: #e2e8f0;
+            font-family: 'Courier New', 'Fira Code', monospace;
+        }
+
+        .github-params {
+            background: #0f172a;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .flex-btns {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            align-items: center;
+        }
+
+        .icon-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        hr {
+            border-color: #1e293b;
+            margin: 1rem 0;
+        }
     </style>
 </head>
 <body>
-
-    <header class="main-header">
-        <div style="font-weight: bold;">MÓZG-AI <span style="color:var(--accent)">v3.0</span></div>
-        <div class="status-light" id="statusLabel">ONLINE</div>
-        <button class="btn btn-toggle" onclick="toggleBrain()">NAUKA 🧠</button>
-    </header>
-
-    <div class="app-layout">
-        <div class="chat-container">
-            <div class="messages" id="chatBox"></div>
-            <div class="input-bar">
-                <textarea id="userIn" placeholder="Pytaj o cokolwiek..."></textarea>
-                <button class="btn" style="background: var(--user-msg); color: white;" onclick="send()">WYŚLIJ</button>
-            </div>
-        </div>
-
-        <div class="brain-panel" id="brainPanel">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="color:var(--accent); font-size:14px;">WGRAJ WIEDZĘ</h3>
-                <button class="btn-toggle" style="border:none" onclick="toggleBrain()">❌</button>
-            </div>
-            
-            <div class="learning-zone">
-                <textarea class="big-input" id="sourceText" placeholder="Wklej tutaj treść ze strony (np. Wikipedia)..."></textarea>
-                <input type="text" id="sourceKey" placeholder="Temat (np. JavaScript)" style="width:100%; padding:10px; background:#161b22; border:1px solid #30363d; color:white; margin-bottom:10px; border-radius:6px;">
-                <button class="btn btn-learn" onclick="processKnowledge()">ZASSAJ WIEDZĘ</button>
-            </div>
-
-            <div style="font-size:12px; color:#8b949e;">TEMATY W BAZIE:</div>
-            <div id="tagList"></div>
-            
-            <button class="btn" style="background:#da3633; color:white; font-size:10px; margin-top:auto" onclick="resetBrain()">Wyczyść Pamięć</button>
-        </div>
+<div class="container">
+    <div class="header">
+        <div class="badge"><i class="fas fa-robot"></i> AI-powered · GitHub native</div>
+        <h1>AI Code Weaver</h1>
+        <div class="sub">Podłącz się do dowolnego AI (OpenAI), wygeneruj kod HTML, a następnie wrzuć go na GitHub jako plik .html</div>
     </div>
 
+    <div class="dashboard">
+        <!-- LEWA KOLUMNA: AI GENERATOR + KONFIGURACJA API -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-brain"></i> 1. Połączenie z AI (OpenAI / Custom)
+            </div>
+            <div class="card-body">
+                <div class="api-section">
+                    <div class="input-group">
+                        <label><i class="fas fa-key"></i> Klucz API OpenAI (lub własne endpoint)</label>
+                        <input type="password" id="apiKey" placeholder="sk-XXXXXXXXXXXXXXXXXXXXXX" value="">
+                        <div style="font-size: 0.7rem; margin-top: 5px;">🔒 klucz pozostaje w przeglądarce (localStorage opcjonalnie)</div>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-globe"></i> Model / Endpoint</label>
+                        <select id="modelSelect">
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo (szybki)</option>
+                            <option value="gpt-4">GPT-4 (dokładniejszy)</option>
+                            <option value="custom">🔧 Custom URL (OpenAI-kompatybilny)</option>
+                        </select>
+                    </div>
+                    <div id="customUrlDiv" style="display: none;">
+                        <div class="input-group">
+                            <label>Custom API URL (np. https://api.openai.com/v1/chat/completions)</label>
+                            <input type="text" id="customUrl" placeholder="https://api.openai.com/v1/chat/completions">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-code"></i> Prompt / opis strony HTML</label>
+                    <textarea id="userPrompt" rows="4" placeholder="Np. 'Stwórz nowoczesną stronę portfolio z ciemnym motywem, galerią projektów i responsywnym menu. Wygeneruj pełny kod HTML/CSS/JS.'"></textarea>
+                </div>
+                <div class="flex-btns">
+                    <button id="generateBtn"><i class="fas fa-magic"></i> Generuj kod przez AI</button>
+                    <button id="saveLocalBtn" class="btn-secondary"><i class="fas fa-save"></i> Zapisz kod lokalnie</button>
+                </div>
+                <div id="aiStatus" class="status">✅ Gotowy. Wprowadź klucz API i opis.</div>
+            </div>
+        </div>
+
+        <!-- PRAWA KOLUMNA: PODGLĄD KODU + GITHUB PUBLIKACJA -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fab fa-github"></i> 2. Wygenerowany HTML & publikacja na GitHub
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <label><i class="fas fa-file-code"></i> Wygenerowany kod HTML (edycja ręczna)</label>
+                    <textarea id="generatedHtml" rows="8" placeholder="Kod pojawi się tutaj automatycznie..."></textarea>
+                </div>
+                <div class="github-params">
+                    <div class="input-group">
+                        <label><i class="fab fa-github"></i> Nazwa repozytorium (owner/repo)</label>
+                        <input type="text" id="repoName" placeholder="np. TwojaNazwa/moja-strona">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-tag"></i> Ścieżka pliku (np. index.html / docs/strona.html)</label>
+                        <input type="text" id="filePath" value="index.html" placeholder="index.html">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-lock"></i> GitHub Personal Access Token (klasyczny, scope: repo)</label>
+                        <input type="password" id="githubToken" placeholder="ghp_xxxxx">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-comment"></i> Commit message</label>
+                        <input type="text" id="commitMsg" value="✨ Dodano stronę przez AI Code Weaver">
+                    </div>
+                    <div class="flex-btns">
+                        <button id="pushToGithubBtn"><i class="fab fa-github"></i> Wyślij na GitHub (jako plik)</button>
+                        <button id="previewBtn" class="btn-outline"><i class="fas fa-eye"></i> Podgląd na żywo</button>
+                    </div>
+                    <div id="githubStatus" class="status">⚡ Wpisz dane repozytorium i token, aby wysłać plik.</div>
+                </div>
+                <hr>
+                <div class="code-preview">
+                    <pre id="htmlPreview">&lt;!-- Podgląd kodu --&gt;</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    let brain = JSON.parse(localStorage.getItem('ai_mobile_v3')) || [];
+    // ------------------- ELEMENTY --------------------
+    const apiKeyInput = document.getElementById('apiKey');
+    const modelSelect = document.getElementById('modelSelect');
+    const customUrlDiv = document.getElementById('customUrlDiv');
+    const customUrlInput = document.getElementById('customUrl');
+    const userPromptArea = document.getElementById('userPrompt');
+    const generateBtn = document.getElementById('generateBtn');
+    const generatedHtmlArea = document.getElementById('generatedHtml');
+    const aiStatusDiv = document.getElementById('aiStatus');
+    const repoNameInput = document.getElementById('repoName');
+    const filePathInput = document.getElementById('filePath');
+    const githubTokenInput = document.getElementById('githubToken');
+    const commitMsgInput = document.getElementById('commitMsg');
+    const pushToGithubBtn = document.getElementById('pushToGithubBtn');
+    const githubStatusDiv = document.getElementById('githubStatus');
+    const previewBtn = document.getElementById('previewBtn');
+    const htmlPreviewPre = document.getElementById('htmlPreview');
+    const saveLocalBtn = document.getElementById('saveLocalBtn');
 
-    function toggleBrain() {
-        document.getElementById('brainPanel').classList.toggle('active');
+    // przechowuje ostatni wygenerowany kod
+    let lastGeneratedCode = '';
+
+    // ---------- obsługa wyboru modelu (custom url) ----------
+    modelSelect.addEventListener('change', () => {
+        if (modelSelect.value === 'custom') {
+            customUrlDiv.style.display = 'block';
+        } else {
+            customUrlDiv.style.display = 'none';
+        }
+    });
+
+    // Funkcja pobierająca URL endpointa
+    function getApiEndpoint() {
+        if (modelSelect.value === 'custom') {
+            let url = customUrlInput.value.trim();
+            if (!url) return 'https://api.openai.com/v1/chat/completions';
+            return url;
+        } else {
+            return 'https://api.openai.com/v1/chat/completions';
+        }
     }
 
-    function processKnowledge() {
-        const text = document.getElementById('sourceText').value.trim();
-        let keys = document.getElementById('sourceKey').value.toLowerCase().trim();
-
-        if (text.length < 5) return alert("Za mało tekstu mordo!");
-
-        const newEntry = {
-            tags: keys ? keys.split(',') : ["ciekawostka"],
-            content: text
-        };
-
-        brain.push(newEntry);
-        localStorage.setItem('ai_mobile_v3', JSON.stringify(brain));
-        
-        document.getElementById('sourceText').value = '';
-        document.getElementById('sourceKey').value = '';
-        
-        renderTags();
-        if(window.innerWidth <= 850) toggleBrain();
-        addMsg("<b>ANALIZA:</b> Przeanalizowałem tekst o <u>" + (keys || "nowym temacie") + "</u> i dodałem do bazy.", "ai");
-    }
-
-    function send() {
-        const q = document.getElementById('userIn').value.trim();
-        if(!q) return;
-        addMsg(q, "user");
-        document.getElementById('userIn').value = '';
-        setTimeout(() => addMsg(searchInBrain(q), "ai"), 500);
-    }
-
-    function searchInBrain(query) {
-        const q = query.toLowerCase();
-        
-        // Matematyka
-        if (q.match(/[0-9]+[\+\-\*\/][0-9]+/)) {
-            try { return "Wynik: <b>" + eval(q.match(/[0-9\+\-\*\/\(\)\.]+/)[0]) + "</b>"; } catch(e) {}
+    // Funkcja generowania przez AI (OpenAI API)
+    async function generateWithAI() {
+        const apiKey = apiKeyInput.value.trim();
+        if (!apiKey) {
+            aiStatusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ❗ Wprowadź swój klucz API OpenAI.';
+            aiStatusDiv.classList.add('error');
+            return false;
         }
 
-        // Szukanie
-        let match = brain.find(e => e.tags.some(t => q.includes(t.trim())) || e.content.toLowerCase().includes(q));
+        const prompt = userPromptArea.value.trim();
+        if (!prompt) {
+            aiStatusDiv.innerHTML = '<i class="fas fa-comment-slash"></i> ❗ Opisz jaką stronę HTML chcesz wygenerować.';
+            aiStatusDiv.classList.add('error');
+            return false;
+        }
 
-        if (match) {
-            if (match.content.includes('{') || match.content.includes('<')) {
-                return `Analiza kodu:<br><div class="code-view">${escapeHTML(match.content)}</div>`;
+        const model = modelSelect.value === 'custom' ? 'gpt-3.5-turbo' : modelSelect.value;
+        const endpoint = getApiEndpoint();
+
+        // system message: ma zwrócić tylko czysty kod HTML (z CSS/JS)
+        const messages = [
+            { role: "system", content: "Jesteś asystentem frontend, który zwraca wyłącznie kompletny, samodzielny kod HTML (może zawierać style, JavaScript). Nie dodawaj żadnych komentarzy poza kodem, nie używaj znaczników markdown jak ```html ... ```. Zwróć czysty kod HTML od <!DOCTYPE html> do </html>. Upewnij się że jest responsywny i nowoczesny." },
+            { role: "user", content: prompt }
+        ];
+
+        aiStatusDiv.innerHTML = '<i class="fas fa-spinner icon-spin"></i> AI myśli... generowanie kodu.';
+        aiStatusDiv.classList.remove('error', 'success');
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: messages,
+                    temperature: 0.7,
+                    max_tokens: 2800
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(`API error ${response.status}: ${errorData.error?.message || response.statusText}`);
             }
-            return `Oto co wiem:<br><br>${match.content.substring(0, 1000)}`;
-        }
-        return "Nie mam tego w bazie. Wklej treść w panelu 'NAUKA', abym mógł to przeanalizować.";
-    }
 
-    function addMsg(txt, type) {
-        const box = document.getElementById('chatBox');
-        const div = document.createElement('div');
-        div.className = `bubble ${type}`;
-        div.innerHTML = txt;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-    }
+            const data = await response.json();
+            let rawHtml = data.choices[0].message.content;
 
-    function renderTags() {
-        const list = document.getElementById('tagList');
-        list.innerHTML = '';
-        brain.forEach(e => e.tags.forEach(t => {
-            const s = document.createElement('span');
-            s.className = 'tag';
-            s.innerText = t;
-            list.appendChild(s);
-        }));
-    }
+            // Czyszczenie ewentualnych ```html ... ``` jeśli model dodał
+            const codeBlockMatch = rawHtml.match(/```(?:html)?\s*([\s\S]*?)```/i);
+            if (codeBlockMatch) {
+                rawHtml = codeBlockMatch[1];
+            }
+            // usunięcie początkowych/końcowych białych znaków
+            rawHtml = rawHtml.trim();
+            if (!rawHtml.toLowerCase().startsWith('<!doctype') && !rawHtml.toLowerCase().startsWith('<html')) {
+                // jeśli model wypluł tylko fragment, można owinąć, ale lepiej dodać ostrzeżenie
+                console.warn('AI nie zwróciło pełnego dokumentu, ale akceptujemy');
+            }
 
-    function escapeHTML(str) {
-        return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
-    }
-
-    function resetBrain() {
-        if(confirm("Czyścimy wszystko?")) {
-            localStorage.clear();
-            location.reload();
+            lastGeneratedCode = rawHtml;
+            generatedHtmlArea.value = lastGeneratedCode;
+            updatePreview(lastGeneratedCode);
+            aiStatusDiv.innerHTML = `<i class="fas fa-check-circle"></i> ✅ Kod wygenerowany! Możesz edytować ręcznie i wysłać na GitHub.`;
+            aiStatusDiv.classList.add('success');
+            return true;
+        } catch (err) {
+            console.error(err);
+            aiStatusDiv.innerHTML = `<i class="fas fa-bug"></i> ❌ Błąd: ${err.message}`;
+            aiStatusDiv.classList.add('error');
+            return false;
         }
     }
 
-    window.onload = () => {
-        renderTags();
-        addMsg("Siema! Wklej treść strony w panelu nauki, a przeanalizuję ją dla Ciebie.", "ai");
-    };
+    // Aktualizacja podglądu kodu w pre
+    function updatePreview(htmlCode) {
+        htmlPreviewPre.innerText = htmlCode || '<!-- brak kodu -->';
+    }
+
+    // ręczna synchronizacja z textarea do podglądu i lastGeneratedCode
+    function syncManualCode() {
+        const manualCode = generatedHtmlArea.value;
+        lastGeneratedCode = manualCode;
+        updatePreview(manualCode);
+    }
+
+    generatedHtmlArea.addEventListener('input', () => {
+        syncManualCode();
+    });
+
+    // podgląd na żywo - nowe okno
+    function livePreview() {
+        const code = generatedHtmlArea.value;
+        if (!code.trim()) {
+            githubStatusDiv.innerHTML = '<i class="fas fa-eye-slash"></i> Brak kodu do podglądu. Najpierw wygeneruj lub wklej HTML.';
+            githubStatusDiv.classList.add('error');
+            setTimeout(() => githubStatusDiv.classList.remove('error'), 2000);
+            return;
+        }
+        const previewWindow = window.open();
+        previewWindow.document.write(code);
+        previewWindow.document.close();
+    }
+
+    // ---------- GitHub upload (wykorzystuje GitHub API) ----------
+    async function pushToGitHub() {
+        const token = githubTokenInput.value.trim();
+        const repoFull = repoNameInput.value.trim();
+        const filePath = filePathInput.value.trim();
+        const commitMessage = commitMsgInput.value.trim() || "Upload via AI Code Weaver";
+        let content = generatedHtmlArea.value;
+
+        if (!content) {
+            githubStatusDiv.innerHTML = '<i class="fas fa-code-branch"></i> ❗ Brak zawartości HTML – najpierw wygeneruj lub wklej kod.';
+            githubStatusDiv.classList.add('error');
+            return false;
+        }
+
+        if (!token) {
+            githubStatusDiv.innerHTML = '<i class="fab fa-github"></i> ❗ Podaj GitHub Personal Access Token (scope repo).';
+            githubStatusDiv.classList.add('error');
+            return false;
+        }
+
+        if (!repoFull || !repoFull.includes('/')) {
+            githubStatusDiv.innerHTML = '<i class="fas fa-folder-open"></i> ❗ Wprowadź repozytorium w formacie "username/nazwa-repo".';
+            githubStatusDiv.classList.add('error');
+            return false;
+        }
+
+        const [owner, repo] = repoFull.split('/');
+        if (!owner || !repo) {
+            githubStatusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Niepoprawny format repozytorium.';
+            return false;
+        }
+
+        githubStatusDiv.innerHTML = '<i class="fas fa-spinner icon-spin"></i> Wysyłanie pliku na GitHub...';
+        githubStatusDiv.classList.remove('error', 'success');
+
+        // 1. Sprawdź czy plik istnieje, aby uzyskać SHA (jeśli aktualizacja)
+        let sha = null;
+        const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(filePath)}`;
+
+        try {
+            const getResponse = await fetch(getUrl, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            if (getResponse.status === 200) {
+                const fileData = await getResponse.json();
+                sha = fileData.sha;
+            } else if (getResponse.status !== 404) {
+                const errText = await getResponse.text();
+                throw new Error(`GitHub API error: ${getResponse.status} - ${errText}`);
+            }
+        } catch (err) {
+            if (!err.message.includes('404')) {
+                githubStatusDiv.innerHTML = `<i class="fas fa-network-wired"></i> Błąd sprawdzania pliku: ${err.message}`;
+                githubStatusDiv.classList.add('error');
+                return false;
+            }
+        }
+
+        // 2. Przygotowanie zawartości w base64
+        const encodedContent = btoa(unescape(encodeURIComponent(content))); // poprawna obsługa UTF-8
+
+        const putBody = {
+            message: commitMessage,
+            content: encodedContent,
+            branch: "main"
+        };
+        if (sha) putBody.sha = sha;
+
+        const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(filePath)}`;
+        try {
+            const putResponse = await fetch(putUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify(putBody)
+            });
+
+            if (!putResponse.ok) {
+                const errorDetail = await putResponse.json();
+                throw new Error(`GitHub PUT error: ${putResponse.status} - ${errorDetail.message || 'unknown'}`);
+            }
+
+            const result = await putResponse.json();
+            const fileUrl = result.content?.html_url || `https://github.com/${owner}/${repo}/blob/main/${filePath}`;
+            githubStatusDiv.innerHTML = `<i class="fab fa-github"></i> ✅ Sukces! Plik zapisany: <a href="${fileUrl}" target="_blank" style="color:#60a5fa;">${fileUrl}</a>`;
+            githubStatusDiv.classList.add('success');
+            return true;
+        } catch (err) {
+            githubStatusDiv.innerHTML = `<i class="fas fa-skull-crosswalk"></i> Błąd podczas wysyłki: ${err.message}`;
+            githubStatusDiv.classList.add('error');
+            return false;
+        }
+    }
+
+    // zapis lokalny (pobranie pliku .html)
+    function downloadHtmlLocally() {
+        const code = generatedHtmlArea.value;
+        if (!code.trim()) {
+            aiStatusDiv.innerHTML = '<i class="fas fa-file"></i> Brak kodu – wygeneruj stronę najpierw.';
+            aiStatusDiv.classList.add('error');
+            setTimeout(() => aiStatusDiv.classList.remove('error'), 1500);
+            return;
+        }
+        const blob = new Blob([code], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'index.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        aiStatusDiv.innerHTML = '<i class="fas fa-download"></i> Pobrano plik index.html lokalnie.';
+        aiStatusDiv.classList.add('success');
+        setTimeout(() => aiStatusDiv.classList.remove('success'), 1800);
+    }
+
+    // Obsługa przycisków
+    generateBtn.addEventListener('click', generateWithAI);
+    pushToGithubBtn.addEventListener('click', pushToGitHub);
+    previewBtn.addEventListener('click', livePreview);
+    saveLocalBtn.addEventListener('click', downloadHtmlLocally);
+
+    // inicjalnie ustaw podgląd pusty
+    updatePreview('');
+    // dodatkowo zapamiętaj ręczne zmiany w textarea
+    generatedHtmlArea.addEventListener('input', () => {
+        lastGeneratedCode = generatedHtmlArea.value;
+    });
+    // Jeśli użytkownik wklei coś do pola kodu - zsynchronizuj
+    window.addEventListener('load', () => {
+        // ewentualne wczytanie z localStorage klucza API? opcjonalnie ale dla wygody
+        if(localStorage.getItem('openai_key')) apiKeyInput.value = localStorage.getItem('openai_key');
+        if(localStorage.getItem('github_token')) githubTokenInput.value = localStorage.getItem('github_token');
+        apiKeyInput.addEventListener('change', () => localStorage.setItem('openai_key', apiKeyInput.value));
+        githubTokenInput.addEventListener('change', () => localStorage.setItem('github_token', githubTokenInput.value));
+    });
 </script>
 </body>
 </html>
